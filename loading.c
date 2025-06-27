@@ -26,7 +26,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     ShowWindow(hwnd, nCmdShow);
 
-    // Emperor gay
+    // emperor gay vc desgraçado
     hFontBig = CreateFontA(48,0,0,0,FW_BOLD,FALSE,FALSE,FALSE,
                            DEFAULT_CHARSET, OUT_DEFAULT_PRECIS,
                            CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY,

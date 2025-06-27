@@ -6,14 +6,14 @@
 
 clear
 function printnOS {
-	echo " "
-	echo "      _       _    _      ___  ___"
-	echo " _ _ (_)_ __ | |__| |___ / _ \/ __|"
-	echo "| ' \| | '  \| '_ \ / -_) (_) \__ \ "
-	echo "|_||_|_|_|_|_|_.__/_\___|\___/|___/ "
-	echo " "
-	echo "-----------------------------------"
-	echo " "
+  echo " "
+  echo "      _       _    _      ___  ___"
+  echo " _ _ (_)_ __ | |__| |___ / _ \/ __|"
+  echo "| ' \| | '  \| '_ \ / -_) (_) \__ \ "
+  echo "|_||_|_|_|_|_|_.__/_\___|\___/|___/ "
+  echo " "
+  echo "-----------------------------------"
+  echo " "
 }
 
 printnOS
@@ -22,9 +22,9 @@ echo "[ 2 ] Abortar Instalação"
 echo " "
 read -p "[ installer ]: " OPTION
 if [[ "$OPTION" == "1" ]]; then
-	# COMANDOS AQUI.
+  # COMANDOS AQUI.
 elif [[ "$OPTION" == "2" ]]; then
-	# COMANDOS AQUI.
-	else
-	# COMANDOS AQUI.
+  break
+else
+  echo "[-] Abortar instalação: error"
 fi
