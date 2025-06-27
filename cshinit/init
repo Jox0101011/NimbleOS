@@ -1,0 +1,21 @@
+#!/bin/sh
+
+mountage_systemfs() {
+
+  mount -t proc none proc
+  mount -t sysfs none sys
+}
+
+installer_message() {
+
+  echo "Welcome to Nimble installer"
+  echo ""
+  echo ""
+}
+
+mountage_systemfs_shell() {
+  exec sh
+}
+mountage_systemfs
+installer_message
+mountage_systemfs_shell
