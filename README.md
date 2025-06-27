@@ -1,6 +1,6 @@
 
-# Nimble Operational System 
-<p> NimbleOS is a GNU/Linux operating system.</p> 
+# Nimble Operating System 
+<p> NimbleOS is Linux operating system.</p> 
 
 ## License
 This project is licensed under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html).
