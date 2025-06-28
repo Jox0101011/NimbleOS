@@ -1,148 +1,140 @@
-#ifndef _SCHED_H
-#define _SCHED_H
-#ifdef __cplusplus
-extern "C" {
-#endif
+/* Definitions for POSIX 1003.1b-1993 (aka POSIX.4) scheduling interface.
+   Copyright (C) 1996-2025 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, see
+   <https://www.gnu.org/licenses/>.  */
+
+#ifndef	_SCHED_H
+#define	_SCHED_H	1
 
 #include <features.h>
 
-#define __NEED_struct_timespec
-#define __NEED_pid_t
-#define __NEED_time_t
+/* Get type definitions.  */
+#include <bits/types.h>
 
-#ifdef _GNU_SOURCE
-#define __NEED_size_t
+#define __need_size_t
+#define __need_NULL
+#include <stddef.h>
+
+#include <bits/types/time_t.h>
+#include <bits/types/struct_timespec.h>
+#ifndef __USE_XOPEN2K
+# include <time.h>
 #endif
 
-#include <bits/alltypes.h>
+#ifndef __pid_t_defined
+typedef __pid_t pid_t;
+# define __pid_t_defined
+#endif
 
-struct sched_param {
-	int sched_priority;
-	int __reserved1;
-#if _REDIR_TIME64
-	long __reserved2[4];
+/* Get system specific constant and data structure definitions.  */
+#include <bits/sched.h>
+#include <bits/cpu-set.h>
+
+/* Backward compatibility.  */
+#define sched_priority    sched_priority
+#define __sched_priority  sched_priority
+
+
+__BEGIN_DECLS
+
+/* Set scheduling parameters for a process.  */
+extern int sched_setparam (__pid_t __pid, const struct sched_param *__param)
+     __THROW;
+
+/* Retrieve scheduling parameters for a particular process.  */
+extern int sched_getparam (__pid_t __pid, struct sched_param *__param) __THROW;
+
+/* Set scheduling algorithm and/or parameters for a process.  */
+extern int sched_setscheduler (__pid_t __pid, int __policy,
+			       const struct sched_param *__param) __THROW;
+
+/* Retrieve scheduling algorithm for a particular purpose.  */
+extern int sched_getscheduler (__pid_t __pid) __THROW;
+
+/* Yield the processor.  */
+extern int sched_yield (void) __THROW;
+
+/* Get maximum priority value for a scheduler.  */
+extern int sched_get_priority_max (int __algorithm) __THROW;
+
+/* Get minimum priority value for a scheduler.  */
+extern int sched_get_priority_min (int __algorithm) __THROW;
+
+/* Get the SCHED_RR interval for the named process.  */
+#ifndef __USE_TIME64_REDIRECTS
+extern int sched_rr_get_interval (__pid_t __pid, struct timespec *__t) __THROW;
 #else
-	struct {
-		time_t __reserved1;
-		long __reserved2;
-	} __reserved2[2];
-#endif
-	int __reserved3;
-};
-
-int    sched_get_priority_max(int);
-int    sched_get_priority_min(int);
-int    sched_getparam(pid_t, struct sched_param *);
-int    sched_getscheduler(pid_t);
-int    sched_rr_get_interval(pid_t, struct timespec *);
-int    sched_setparam(pid_t, const struct sched_param *);
-int    sched_setscheduler(pid_t, int, const struct sched_param *);
-int     sched_yield(void);
-
-#define SCHED_OTHER 0
-#define SCHED_FIFO 1
-#define SCHED_RR 2
-#define SCHED_BATCH 3
-#define SCHED_IDLE 5
-#define SCHED_DEADLINE 6
-#define SCHED_RESET_ON_FORK 0x40000000
-
-#ifdef _GNU_SOURCE
-#define CSIGNAL		0x000000ff
-#define CLONE_NEWTIME	0x00000080
-#define CLONE_VM	0x00000100
-#define CLONE_FS	0x00000200
-#define CLONE_FILES	0x00000400
-#define CLONE_SIGHAND	0x00000800
-#define CLONE_PIDFD	0x00001000
-#define CLONE_PTRACE	0x00002000
-#define CLONE_VFORK	0x00004000
-#define CLONE_PARENT	0x00008000
-#define CLONE_THREAD	0x00010000
-#define CLONE_NEWNS	0x00020000
-#define CLONE_SYSVSEM	0x00040000
-#define CLONE_SETTLS	0x00080000
-#define CLONE_PARENT_SETTID	0x00100000
-#define CLONE_CHILD_CLEARTID	0x00200000
-#define CLONE_DETACHED	0x00400000
-#define CLONE_UNTRACED	0x00800000
-#define CLONE_CHILD_SETTID	0x01000000
-#define CLONE_NEWCGROUP	0x02000000
-#define CLONE_NEWUTS	0x04000000
-#define CLONE_NEWIPC	0x08000000
-#define CLONE_NEWUSER	0x10000000
-#define CLONE_NEWPID	0x20000000
-#define CLONE_NEWNET	0x40000000
-#define CLONE_IO	0x80000000
-int clone (int (*)(void *), void *, int, void *, ...);
-int unshare(int);
-int setns(int, int);
-
-void *memcpy(void *__restrict, const void *__restrict, size_t);
-int memcmp(const void *, const void *, size_t);
-void *memset (void *, int, size_t);
-void *calloc(size_t, size_t);
-void free(void *);
-
-typedef struct cpu_set_t { unsigned long __bits[128/sizeof(long)]; } cpu_set_t;
-int __sched_cpucount(size_t, const cpu_set_t *);
-int sched_getcpu(void);
-int sched_getaffinity(pid_t, size_t, cpu_set_t *);
-int sched_setaffinity(pid_t, size_t, const cpu_set_t *);
-
-#define __CPU_op_S(i, size, set, op) ( (i)/8U >= (size) ? 0 : \
-	(((unsigned long *)(set))[(i)/8/sizeof(long)] op (1UL<<((i)%(8*sizeof(long))))) )
-
-#define CPU_SET_S(i, size, set) __CPU_op_S(i, size, set, |=)
-#define CPU_CLR_S(i, size, set) __CPU_op_S(i, size, set, &=~)
-#define CPU_ISSET_S(i, size, set) __CPU_op_S(i, size, set, &)
-
-#define __CPU_op_func_S(func, op) \
-static __inline void __CPU_##func##_S(size_t __size, cpu_set_t *__dest, \
-	const cpu_set_t *__src1, const cpu_set_t *__src2) \
-{ \
-	size_t __i; \
-	for (__i=0; __i<__size/sizeof(long); __i++) \
-		((unsigned long *)__dest)[__i] = ((unsigned long *)__src1)[__i] \
-			op ((unsigned long *)__src2)[__i] ; \
-}
-
-__CPU_op_func_S(AND, &)
-__CPU_op_func_S(OR, |)
-__CPU_op_func_S(XOR, ^)
-
-#define CPU_AND_S(a,b,c,d) __CPU_AND_S(a,b,c,d)
-#define CPU_OR_S(a,b,c,d) __CPU_OR_S(a,b,c,d)
-#define CPU_XOR_S(a,b,c,d) __CPU_XOR_S(a,b,c,d)
-
-#define CPU_COUNT_S(size,set) __sched_cpucount(size,set)
-#define CPU_ZERO_S(size,set) memset(set,0,size)
-#define CPU_EQUAL_S(size,set1,set2) (!memcmp(set1,set2,size))
-
-#define CPU_ALLOC_SIZE(n) (sizeof(long) * ( (n)/(8*sizeof(long)) \
-	+ ((n)%(8*sizeof(long)) + 8*sizeof(long)-1)/(8*sizeof(long)) ) )
-#define CPU_ALLOC(n) ((cpu_set_t *)calloc(1,CPU_ALLOC_SIZE(n)))
-#define CPU_FREE(set) free(set)
-
-#define CPU_SETSIZE 128
-
-#define CPU_SET(i, set) CPU_SET_S(i,sizeof(cpu_set_t),set)
-#define CPU_CLR(i, set) CPU_CLR_S(i,sizeof(cpu_set_t),set)
-#define CPU_ISSET(i, set) CPU_ISSET_S(i,sizeof(cpu_set_t),set)
-#define CPU_AND(d,s1,s2) CPU_AND_S(sizeof(cpu_set_t),d,s1,s2)
-#define CPU_OR(d,s1,s2) CPU_OR_S(sizeof(cpu_set_t),d,s1,s2)
-#define CPU_XOR(d,s1,s2) CPU_XOR_S(sizeof(cpu_set_t),d,s1,s2)
-#define CPU_COUNT(set) CPU_COUNT_S(sizeof(cpu_set_t),set)
-#define CPU_ZERO(set) CPU_ZERO_S(sizeof(cpu_set_t),set)
-#define CPU_EQUAL(s1,s2) CPU_EQUAL_S(sizeof(cpu_set_t),s1,s2)
-
+# ifdef __REDIRECT_NTH
+extern int __REDIRECT_NTH (sched_rr_get_interval,
+                           (__pid_t __pid, struct timespec *__t),
+                           __sched_rr_get_interval64);
+# else
+#  define sched_rr_get_interval __sched_rr_get_interval64
+# endif
 #endif
 
-#if _REDIR_TIME64
-__REDIR(sched_rr_get_interval, __sched_rr_get_interval_time64);
+#ifdef __USE_GNU
+/* Access macros for `cpu_set'.  */
+# define CPU_SETSIZE __CPU_SETSIZE
+# define CPU_SET(cpu, cpusetp)	 __CPU_SET_S (cpu, sizeof (cpu_set_t), cpusetp)
+# define CPU_CLR(cpu, cpusetp)	 __CPU_CLR_S (cpu, sizeof (cpu_set_t), cpusetp)
+# define CPU_ISSET(cpu, cpusetp) __CPU_ISSET_S (cpu, sizeof (cpu_set_t), \
+						cpusetp)
+# define CPU_ZERO(cpusetp)	 __CPU_ZERO_S (sizeof (cpu_set_t), cpusetp)
+# define CPU_COUNT(cpusetp)	 __CPU_COUNT_S (sizeof (cpu_set_t), cpusetp)
+
+# define CPU_SET_S(cpu, setsize, cpusetp)   __CPU_SET_S (cpu, setsize, cpusetp)
+# define CPU_CLR_S(cpu, setsize, cpusetp)   __CPU_CLR_S (cpu, setsize, cpusetp)
+# define CPU_ISSET_S(cpu, setsize, cpusetp) __CPU_ISSET_S (cpu, setsize, \
+							   cpusetp)
+# define CPU_ZERO_S(setsize, cpusetp)	    __CPU_ZERO_S (setsize, cpusetp)
+# define CPU_COUNT_S(setsize, cpusetp)	    __CPU_COUNT_S (setsize, cpusetp)
+
+# define CPU_EQUAL(cpusetp1, cpusetp2) \
+  __CPU_EQUAL_S (sizeof (cpu_set_t), cpusetp1, cpusetp2)
+# define CPU_EQUAL_S(setsize, cpusetp1, cpusetp2) \
+  __CPU_EQUAL_S (setsize, cpusetp1, cpusetp2)
+
+# define CPU_AND(destset, srcset1, srcset2) \
+  __CPU_OP_S (sizeof (cpu_set_t), destset, srcset1, srcset2, &)
+# define CPU_OR(destset, srcset1, srcset2) \
+  __CPU_OP_S (sizeof (cpu_set_t), destset, srcset1, srcset2, |)
+# define CPU_XOR(destset, srcset1, srcset2) \
+  __CPU_OP_S (sizeof (cpu_set_t), destset, srcset1, srcset2, ^)
+# define CPU_AND_S(setsize, destset, srcset1, srcset2) \
+  __CPU_OP_S (setsize, destset, srcset1, srcset2, &)
+# define CPU_OR_S(setsize, destset, srcset1, srcset2) \
+  __CPU_OP_S (setsize, destset, srcset1, srcset2, |)
+# define CPU_XOR_S(setsize, destset, srcset1, srcset2) \
+  __CPU_OP_S (setsize, destset, srcset1, srcset2, ^)
+
+# define CPU_ALLOC_SIZE(count) __CPU_ALLOC_SIZE (count)
+# define CPU_ALLOC(count) __CPU_ALLOC (count)
+# define CPU_FREE(cpuset) __CPU_FREE (cpuset)
+
+
+/* Set the CPU affinity for a task */
+extern int sched_setaffinity (__pid_t __pid, size_t __cpusetsize,
+			      const cpu_set_t *__cpuset) __THROW;
+
+/* Get the CPU affinity for a task */
+extern int sched_getaffinity (__pid_t __pid, size_t __cpusetsize,
+			      cpu_set_t *__cpuset) __THROW;
 #endif
 
-#ifdef __cplusplus
-}
-#endif
-#endif
+__END_DECLS
+
+#endif /* sched.h */

@@ -1,70 +1,73 @@
-#ifndef _SYS_SHM_H
-#define _SYS_SHM_H
+/* Copyright (C) 1995-2025 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, see
+   <https://www.gnu.org/licenses/>.  */
+
+#ifndef _SYS_SHM_H
+#define _SYS_SHM_H	1
 
 #include <features.h>
 
-#define __NEED_time_t
-#define __NEED_size_t
-#define __NEED_pid_t
+#define __need_size_t
+#include <stddef.h>
 
-#include <bits/alltypes.h>
-
+/* Get common definition of System V style IPC.  */
 #include <sys/ipc.h>
 
-#ifdef _GNU_SOURCE
-#define __used_ids used_ids
-#define __swap_attempts swap_attempts
-#define __swap_successes swap_successes
-#endif
-
+/* Get system dependent definition of `struct shmid_ds' and more.  */
 #include <bits/shm.h>
 
-#define SHM_R 0400
-#define SHM_W 0200
+/* Define types required by the standard.  */
+#include <bits/types/time_t.h>
 
-#define SHM_RDONLY 010000
-#define SHM_RND    020000
-#define SHM_REMAP  040000
-#define SHM_EXEC   0100000
+#ifdef __USE_XOPEN
+# ifndef __pid_t_defined
+typedef __pid_t pid_t;
+#  define __pid_t_defined
+# endif
+#endif	/* X/Open */
 
-#define SHM_LOCK 11
-#define SHM_UNLOCK 12
-#define SHM_STAT (13 | (IPC_STAT & 0x100))
-#define SHM_INFO 14
-#define SHM_STAT_ANY (15 | (IPC_STAT & 0x100))
-#define SHM_DEST 01000
-#define SHM_LOCKED 02000
-#define SHM_HUGETLB 04000
-#define SHM_NORESERVE 010000
 
-#define SHM_HUGE_SHIFT 26
-#define SHM_HUGE_MASK  0x3f
-#define SHM_HUGE_64KB  (16 << 26)
-#define SHM_HUGE_512KB (19 << 26)
-#define SHM_HUGE_1MB   (20 << 26)
-#define SHM_HUGE_2MB   (21 << 26)
-#define SHM_HUGE_8MB   (23 << 26)
-#define SHM_HUGE_16MB  (24 << 26)
-#define SHM_HUGE_32MB  (25 << 26)
-#define SHM_HUGE_256MB (28 << 26)
-#define SHM_HUGE_512MB (29 << 26)
-#define SHM_HUGE_1GB   (30 << 26)
-#define SHM_HUGE_2GB   (31 << 26)
-#define SHM_HUGE_16GB  (34U << 26)
+__BEGIN_DECLS
 
-typedef unsigned long shmatt_t;
+/* The following System V style IPC functions implement a shared memory
+   facility.  The definition is found in XPG4.2.  */
 
-void *shmat(int, const void *, int);
-int shmctl(int, int, struct shmid_ds *);
-int shmdt(const void *);
-int shmget(key_t, size_t, int);
-
-#ifdef __cplusplus
-}
+/* Shared memory control operation.  */
+#ifndef __USE_TIME64_REDIRECTS
+extern int shmctl (int __shmid, int __cmd, struct shmid_ds *__buf) __THROW;
+#else
+# ifdef __REDIRECT_NTH
+extern int __REDIRECT_NTH (shmctl,
+                           (int __shmid, int __cmd, struct shmid_ds *__buf),
+                           __shmctl64);
+# else
+#  define shmctl __shmctl64
+# endif
 #endif
 
-#endif
+/* Get shared memory segment.  */
+extern int shmget (key_t __key, size_t __size, int __shmflg) __THROW;
+
+/* Attach shared memory segment.  */
+extern void *shmat (int __shmid, const void *__shmaddr, int __shmflg)
+     __THROW;
+
+/* Detach shared memory segment.  */
+extern int shmdt (const void *__shmaddr) __THROW;
+
+__END_DECLS
+
+#endif /* sys/shm.h */

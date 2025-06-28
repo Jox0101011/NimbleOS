@@ -1,475 +1,1225 @@
-#ifndef	_UNISTD_H
-#define	_UNISTD_H
+/* Copyright (C) 1991-2025 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, see
+   <https://www.gnu.org/licenses/>.  */
+
+/*
+ *	POSIX Standard: 2.10 Symbolic Constants		<unistd.h>
+ */
+
+#ifndef	_UNISTD_H
+#define	_UNISTD_H	1
 
 #include <features.h>
 
-#define STDIN_FILENO  0
-#define STDOUT_FILENO 1
-#define STDERR_FILENO 2
+__BEGIN_DECLS
 
-#define SEEK_SET 0
-#define SEEK_CUR 1
-#define SEEK_END 2
-#define SEEK_DATA 3
-#define SEEK_HOLE 4
+/* These may be used to determine what facilities are present at compile time.
+   Their values can be obtained at run time from `sysconf'.  */
 
-#if __cplusplus >= 201103L
-#define NULL nullptr
-#elif defined(__cplusplus)
-#define NULL 0L
+#ifdef __USE_XOPEN2K8
+/* POSIX Standard approved as ISO/IEC 9945-1 as of September 2008.  */
+# define _POSIX_VERSION	200809L
+#elif defined __USE_XOPEN2K
+/* POSIX Standard approved as ISO/IEC 9945-1 as of December 2001.  */
+# define _POSIX_VERSION	200112L
+#elif defined __USE_POSIX199506
+/* POSIX Standard approved as ISO/IEC 9945-1 as of June 1995.  */
+# define _POSIX_VERSION	199506L
+#elif defined __USE_POSIX199309
+/* POSIX Standard approved as ISO/IEC 9945-1 as of September 1993.  */
+# define _POSIX_VERSION	199309L
 #else
-#define NULL ((void*)0)
+/* POSIX Standard approved as ISO/IEC 9945-1 as of September 1990.  */
+# define _POSIX_VERSION	199009L
 #endif
 
-#define __NEED_size_t
-#define __NEED_ssize_t
-#define __NEED_uid_t
-#define __NEED_gid_t
-#define __NEED_off_t
-#define __NEED_pid_t
-#define __NEED_intptr_t
-#define __NEED_useconds_t
+/* These are not #ifdef __USE_POSIX2 because they are
+   in the theoretically application-owned namespace.  */
 
-#include <bits/alltypes.h>
-
-int pipe(int [2]);
-int pipe2(int [2], int);
-int close(int);
-int posix_close(int, int);
-int dup(int);
-int dup2(int, int);
-int dup3(int, int, int);
-off_t lseek(int, off_t, int);
-int fsync(int);
-int fdatasync(int);
-
-ssize_t read(int, void *, size_t);
-ssize_t write(int, const void *, size_t);
-ssize_t pread(int, void *, size_t, off_t);
-ssize_t pwrite(int, const void *, size_t, off_t);
-
-int chown(const char *, uid_t, gid_t);
-int fchown(int, uid_t, gid_t);
-int lchown(const char *, uid_t, gid_t);
-int fchownat(int, const char *, uid_t, gid_t, int);
-
-int link(const char *, const char *);
-int linkat(int, const char *, int, const char *, int);
-int symlink(const char *, const char *);
-int symlinkat(const char *, int, const char *);
-ssize_t readlink(const char *__restrict, char *__restrict, size_t);
-ssize_t readlinkat(int, const char *__restrict, char *__restrict, size_t);
-int unlink(const char *);
-int unlinkat(int, const char *, int);
-int rmdir(const char *);
-int truncate(const char *, off_t);
-int ftruncate(int, off_t);
-
-#define F_OK 0
-#define R_OK 4
-#define W_OK 2
-#define X_OK 1
-
-int access(const char *, int);
-int faccessat(int, const char *, int, int);
-
-int chdir(const char *);
-int fchdir(int);
-char *getcwd(char *, size_t);
-
-unsigned alarm(unsigned);
-unsigned sleep(unsigned);
-int pause(void);
-
-pid_t fork(void);
-pid_t _Fork(void);
-int execve(const char *, char *const [], char *const []);
-int execv(const char *, char *const []);
-int execle(const char *, const char *, ...);
-int execl(const char *, const char *, ...);
-int execvp(const char *, char *const []);
-int execlp(const char *, const char *, ...);
-int fexecve(int, char *const [], char *const []);
-_Noreturn void _exit(int);
-
-pid_t getpid(void);
-pid_t getppid(void);
-pid_t getpgrp(void);
-pid_t getpgid(pid_t);
-int setpgid(pid_t, pid_t);
-pid_t setsid(void);
-pid_t getsid(pid_t);
-char *ttyname(int);
-int ttyname_r(int, char *, size_t);
-int isatty(int);
-pid_t tcgetpgrp(int);
-int tcsetpgrp(int, pid_t);
-
-uid_t getuid(void);
-uid_t geteuid(void);
-gid_t getgid(void);
-gid_t getegid(void);
-int getgroups(int, gid_t []);
-int setuid(uid_t);
-int seteuid(uid_t);
-int setgid(gid_t);
-int setegid(gid_t);
-
-char *getlogin(void);
-int getlogin_r(char *, size_t);
-int gethostname(char *, size_t);
-char *ctermid(char *);
-
-int getopt(int, char * const [], const char *);
-extern char *optarg;
-extern int optind, opterr, optopt;
-
-long pathconf(const char *, int);
-long fpathconf(int, int);
-long sysconf(int);
-size_t confstr(int, char *, size_t);
-
-#if defined(_XOPEN_SOURCE) || defined(_GNU_SOURCE) || defined(_BSD_SOURCE)
-#define F_ULOCK 0
-#define F_LOCK  1
-#define F_TLOCK 2
-#define F_TEST  3
-int setreuid(uid_t, uid_t);
-int setregid(gid_t, gid_t);
-int lockf(int, int, off_t);
-long gethostid(void);
-int nice(int);
-void sync(void);
-pid_t setpgrp(void);
-char *crypt(const char *, const char *);
-void encrypt(char *, int);
-void swab(const void *__restrict, void *__restrict, ssize_t);
+#ifdef __USE_XOPEN2K8
+# define __POSIX2_THIS_VERSION	200809L
+/* The utilities on GNU systems also correspond to this version.  */
+#elif defined __USE_XOPEN2K
+/* The utilities on GNU systems also correspond to this version.  */
+# define __POSIX2_THIS_VERSION	200112L
+#elif defined __USE_POSIX199506
+/* The utilities on GNU systems also correspond to this version.  */
+# define __POSIX2_THIS_VERSION	199506L
+#else
+/* The utilities on GNU systems also correspond to this version.  */
+# define __POSIX2_THIS_VERSION	199209L
 #endif
 
-#if defined(_GNU_SOURCE) || defined(_BSD_SOURCE) \
- || (defined(_XOPEN_SOURCE) && _XOPEN_SOURCE+0 < 700)
-int usleep(unsigned);
-unsigned ualarm(unsigned, unsigned);
+/* The utilities on GNU systems also correspond to this version.  */
+#define _POSIX2_VERSION	__POSIX2_THIS_VERSION
+
+/* This symbol was required until the 2001 edition of POSIX.  */
+#define	_POSIX2_C_VERSION	__POSIX2_THIS_VERSION
+
+/* If defined, the implementation supports the
+   C Language Bindings Option.  */
+#define	_POSIX2_C_BIND	__POSIX2_THIS_VERSION
+
+/* If defined, the implementation supports the
+   C Language Development Utilities Option.  */
+#define	_POSIX2_C_DEV	__POSIX2_THIS_VERSION
+
+/* If defined, the implementation supports the
+   Software Development Utilities Option.  */
+#define	_POSIX2_SW_DEV	__POSIX2_THIS_VERSION
+
+/* If defined, the implementation supports the
+   creation of locales with the localedef utility.  */
+#define _POSIX2_LOCALEDEF       __POSIX2_THIS_VERSION
+
+/* X/Open version number to which the library conforms.  It is selectable.  */
+#ifdef __USE_XOPEN2K8
+# define _XOPEN_VERSION	700
+#elif defined __USE_XOPEN2K
+# define _XOPEN_VERSION	600
+#elif defined __USE_UNIX98
+# define _XOPEN_VERSION	500
+#else
+# define _XOPEN_VERSION	4
 #endif
 
-#if defined(_GNU_SOURCE) || defined(_BSD_SOURCE)
-#define L_SET 0
-#define L_INCR 1
-#define L_XTND 2
-int brk(void *);
-void *sbrk(intptr_t);
-pid_t vfork(void);
-int vhangup(void);
-int chroot(const char *);
-int getpagesize(void);
-int getdtablesize(void);
-int sethostname(const char *, size_t);
-int getdomainname(char *, size_t);
-int setdomainname(const char *, size_t);
-int setgroups(size_t, const gid_t *);
-char *getpass(const char *);
-int daemon(int, int);
-void setusershell(void);
-void endusershell(void);
-char *getusershell(void);
-int acct(const char *);
-long syscall(long, ...);
-int execvpe(const char *, char *const [], char *const []);
-int issetugid(void);
-int getentropy(void *, size_t);
-extern int optreset;
+/* Commands and utilities from XPG4 are available.  */
+#define _XOPEN_XCU_VERSION	4
+
+/* We are compatible with the old published standards as well.  */
+#define _XOPEN_XPG2	1
+#define _XOPEN_XPG3	1
+#define _XOPEN_XPG4	1
+
+/* The X/Open Unix extensions are available.  */
+#define _XOPEN_UNIX	1
+
+/* The enhanced internationalization capabilities according to XPG4.2
+   are present.  */
+#define	_XOPEN_ENH_I18N	1
+
+/* The legacy interfaces are also available.  */
+#define _XOPEN_LEGACY	1
+
+
+/* Get values of POSIX options:
+
+   If these symbols are defined, the corresponding features are
+   always available.  If not, they may be available sometimes.
+   The current values can be obtained with `sysconf'.
+
+   _POSIX_JOB_CONTROL		Job control is supported.
+   _POSIX_SAVED_IDS		Processes have a saved set-user-ID
+				and a saved set-group-ID.
+   _POSIX_REALTIME_SIGNALS	Real-time, queued signals are supported.
+   _POSIX_PRIORITY_SCHEDULING	Priority scheduling is supported.
+   _POSIX_TIMERS		POSIX.4 clocks and timers are supported.
+   _POSIX_ASYNCHRONOUS_IO	Asynchronous I/O is supported.
+   _POSIX_PRIORITIZED_IO	Prioritized asynchronous I/O is supported.
+   _POSIX_SYNCHRONIZED_IO	Synchronizing file data is supported.
+   _POSIX_FSYNC			The fsync function is present.
+   _POSIX_MAPPED_FILES		Mapping of files to memory is supported.
+   _POSIX_MEMLOCK		Locking of all memory is supported.
+   _POSIX_MEMLOCK_RANGE		Locking of ranges of memory is supported.
+   _POSIX_MEMORY_PROTECTION	Setting of memory protections is supported.
+   _POSIX_MESSAGE_PASSING	POSIX.4 message queues are supported.
+   _POSIX_SEMAPHORES		POSIX.4 counting semaphores are supported.
+   _POSIX_SHARED_MEMORY_OBJECTS	POSIX.4 shared memory objects are supported.
+   _POSIX_THREADS		POSIX.1c pthreads are supported.
+   _POSIX_THREAD_ATTR_STACKADDR	Thread stack address attribute option supported.
+   _POSIX_THREAD_ATTR_STACKSIZE	Thread stack size attribute option supported.
+   _POSIX_THREAD_SAFE_FUNCTIONS	Thread-safe functions are supported.
+   _POSIX_THREAD_PRIORITY_SCHEDULING
+				POSIX.1c thread execution scheduling supported.
+   _POSIX_THREAD_PRIO_INHERIT	Thread priority inheritance option supported.
+   _POSIX_THREAD_PRIO_PROTECT	Thread priority protection option supported.
+   _POSIX_THREAD_PROCESS_SHARED	Process-shared synchronization supported.
+   _POSIX_PII			Protocol-independent interfaces are supported.
+   _POSIX_PII_XTI		XTI protocol-indep. interfaces are supported.
+   _POSIX_PII_SOCKET		Socket protocol-indep. interfaces are supported.
+   _POSIX_PII_INTERNET		Internet family of protocols supported.
+   _POSIX_PII_INTERNET_STREAM	Connection-mode Internet protocol supported.
+   _POSIX_PII_INTERNET_DGRAM	Connectionless Internet protocol supported.
+   _POSIX_PII_OSI		ISO/OSI family of protocols supported.
+   _POSIX_PII_OSI_COTS		Connection-mode ISO/OSI service supported.
+   _POSIX_PII_OSI_CLTS		Connectionless ISO/OSI service supported.
+   _POSIX_POLL			Implementation supports `poll' function.
+   _POSIX_SELECT		Implementation supports `select' and `pselect'.
+
+   _XOPEN_REALTIME		X/Open realtime support is available.
+   _XOPEN_REALTIME_THREADS	X/Open realtime thread support is available.
+   _XOPEN_SHM			Shared memory interface according to XPG4.2.
+
+   _XBS5_ILP32_OFF32		Implementation provides environment with 32-bit
+				int, long, pointer, and off_t types.
+   _XBS5_ILP32_OFFBIG		Implementation provides environment with 32-bit
+				int, long, and pointer and off_t with at least
+				64 bits.
+   _XBS5_LP64_OFF64		Implementation provides environment with 32-bit
+				int, and 64-bit long, pointer, and off_t types.
+   _XBS5_LPBIG_OFFBIG		Implementation provides environment with at
+				least 32 bits int and long, pointer, and off_t
+				with at least 64 bits.
+
+   If any of these symbols is defined as -1, the corresponding option is not
+   true for any file.  If any is defined as other than -1, the corresponding
+   option is true for all files.  If a symbol is not defined at all, the value
+   for a specific file can be obtained from `pathconf' and `fpathconf'.
+
+   _POSIX_CHOWN_RESTRICTED	Only the super user can use `chown' to change
+				the owner of a file.  `chown' can only be used
+				to change the group ID of a file to a group of
+				which the calling process is a member.
+   _POSIX_NO_TRUNC		Pathname components longer than
+				NAME_MAX generate an error.
+   _POSIX_VDISABLE		If defined, if the value of an element of the
+				`c_cc' member of `struct termios' is
+				_POSIX_VDISABLE, no character will have the
+				effect associated with that element.
+   _POSIX_SYNC_IO		Synchronous I/O may be performed.
+   _POSIX_ASYNC_IO		Asynchronous I/O may be performed.
+   _POSIX_PRIO_IO		Prioritized Asynchronous I/O may be performed.
+
+   Support for the Large File Support interface is not generally available.
+   If it is available the following constants are defined to one.
+   _LFS64_LARGEFILE		Low-level I/O supports large files.
+   _LFS64_STDIO			Standard I/O supports large files.
+   */
+
+#include <bits/posix_opt.h>
+
+/* Get the environment definitions from Unix98.  */
+#if defined __USE_UNIX98 || defined __USE_XOPEN2K
+# include <bits/environments.h>
 #endif
 
-#ifdef _GNU_SOURCE
+/* Standard file descriptors.  */
+#define	STDIN_FILENO	0	/* Standard input.  */
+#define	STDOUT_FILENO	1	/* Standard output.  */
+#define	STDERR_FILENO	2	/* Standard error output.  */
+
+
+/* All functions that are not declared anywhere else.  */
+
+#include <bits/types.h>
+
+#ifndef	__ssize_t_defined
+typedef __ssize_t ssize_t;
+# define __ssize_t_defined
+#endif
+
+#define	__need_size_t
+#define __need_NULL
+#include <stddef.h>
+
+#if defined __USE_XOPEN || defined __USE_XOPEN2K
+/* The Single Unix specification says that some more types are
+   available here.  */
+# ifndef __gid_t_defined
+typedef __gid_t gid_t;
+#  define __gid_t_defined
+# endif
+
+# ifndef __uid_t_defined
+typedef __uid_t uid_t;
+#  define __uid_t_defined
+# endif
+
+# ifndef __off_t_defined
+#  ifndef __USE_FILE_OFFSET64
+typedef __off_t off_t;
+#  else
+typedef __off64_t off_t;
+#  endif
+#  define __off_t_defined
+# endif
+# if defined __USE_LARGEFILE64 && !defined __off64_t_defined
+typedef __off64_t off64_t;
+#  define __off64_t_defined
+# endif
+
+# ifndef __useconds_t_defined
+typedef __useconds_t useconds_t;
+#  define __useconds_t_defined
+# endif
+
+# ifndef __pid_t_defined
+typedef __pid_t pid_t;
+#  define __pid_t_defined
+# endif
+#endif	/* X/Open */
+
+#if defined __USE_XOPEN_EXTENDED || defined __USE_XOPEN2K
+# ifndef __intptr_t_defined
+typedef __intptr_t intptr_t;
+#  define __intptr_t_defined
+# endif
+#endif
+
+#if defined __USE_MISC || defined __USE_XOPEN
+# ifndef __socklen_t_defined
+typedef __socklen_t socklen_t;
+#  define __socklen_t_defined
+# endif
+#endif
+
+/* Values for the second argument to access.
+   These may be OR'd together.  */
+#define	R_OK	4		/* Test for read permission.  */
+#define	W_OK	2		/* Test for write permission.  */
+#define	X_OK	1		/* Test for execute permission.  */
+#define	F_OK	0		/* Test for existence.  */
+
+/* Test for access to NAME using the real UID and real GID.  */
+extern int access (const char *__name, int __type) __THROW __nonnull ((1));
+
+#ifdef __USE_GNU
+/* Test for access to NAME using the effective UID and GID
+   (as normal file operations use).  */
+extern int euidaccess (const char *__name, int __type)
+     __THROW __nonnull ((1));
+
+/* An alias for `euidaccess', used by some other systems.  */
+extern int eaccess (const char *__name, int __type)
+     __THROW __nonnull ((1));
+
+/* Execute program relative to a directory file descriptor.  */
+extern int execveat (int __fd, const char *__path, char *const __argv[],
+                     char *const __envp[], int __flags)
+    __THROW __nonnull ((2, 3));
+#endif
+
+#ifdef __USE_ATFILE
+/* Test for access to FILE relative to the directory FD is open on.
+   If AT_EACCESS is set in FLAG, then use effective IDs like `eaccess',
+   otherwise use real IDs like `access'.  */
+extern int faccessat (int __fd, const char *__file, int __type, int __flag)
+     __THROW __nonnull ((2)) __wur;
+#endif /* Use GNU.  */
+
+
+/* Values for the WHENCE argument to lseek.  */
+#ifndef	_STDIO_H		/* <stdio.h> has the same definitions.  */
+# define SEEK_SET	0	/* Seek from beginning of file.  */
+# define SEEK_CUR	1	/* Seek from current position.  */
+# define SEEK_END	2	/* Seek from end of file.  */
+# ifdef __USE_GNU
+#  define SEEK_DATA	3	/* Seek to next data.  */
+#  define SEEK_HOLE	4	/* Seek to next hole.  */
+# endif
+#endif
+
+#if defined __USE_MISC && !defined L_SET
+/* Old BSD names for the same constants; just for compatibility.  */
+# define L_SET		SEEK_SET
+# define L_INCR		SEEK_CUR
+# define L_XTND		SEEK_END
+#endif
+
+
+/* Move FD's file position to OFFSET bytes from the
+   beginning of the file (if WHENCE is SEEK_SET),
+   the current position (if WHENCE is SEEK_CUR),
+   or the end of the file (if WHENCE is SEEK_END).
+   Return the new file position.  */
+#ifndef __USE_FILE_OFFSET64
+extern __off_t lseek (int __fd, __off_t __offset, int __whence) __THROW;
+#else
+# ifdef __REDIRECT_NTH
+extern __off64_t __REDIRECT_NTH (lseek,
+				 (int __fd, __off64_t __offset, int __whence),
+				 lseek64);
+# else
+#  define lseek lseek64
+# endif
+#endif
+#ifdef __USE_LARGEFILE64
+extern __off64_t lseek64 (int __fd, __off64_t __offset, int __whence)
+     __THROW;
+#endif
+
+/* Close the file descriptor FD.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern int close (int __fd);
+
+#ifdef __USE_MISC
+/* Close all open file descriptors greater than or equal to LOWFD.
+   Negative LOWFD is clamped to 0.  */
+extern void closefrom (int __lowfd) __THROW;
+#endif
+
+/* Read NBYTES into BUF from FD.  Return the
+   number read, -1 for errors or 0 for EOF.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern ssize_t read (int __fd, void *__buf, size_t __nbytes) __wur
+    __fortified_attr_access (__write_only__, 2, 3);
+
+/* Write N bytes of BUF to FD.  Return the number written, or -1.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern ssize_t write (int __fd, const void *__buf, size_t __n) __wur
+    __attr_access ((__read_only__, 2, 3));
+
+#if defined __USE_UNIX98 || defined __USE_XOPEN2K8
+# ifndef __USE_FILE_OFFSET64
+/* Read NBYTES into BUF from FD at the given position OFFSET without
+   changing the file pointer.  Return the number read, -1 for errors
+   or 0 for EOF.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern ssize_t pread (int __fd, void *__buf, size_t __nbytes,
+		      __off_t __offset) __wur
+    __fortified_attr_access (__write_only__, 2, 3);
+
+/* Write N bytes of BUF to FD at the given position OFFSET without
+   changing the file pointer.  Return the number written, or -1.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern ssize_t pwrite (int __fd, const void *__buf, size_t __n,
+		       __off_t __offset) __wur
+    __attr_access ((__read_only__, 2, 3));
+
+# else
+#  ifdef __REDIRECT
+extern ssize_t __REDIRECT (pread, (int __fd, void *__buf, size_t __nbytes,
+				   __off64_t __offset),
+			   pread64) __wur
+    __fortified_attr_access (__write_only__, 2, 3);
+extern ssize_t __REDIRECT (pwrite, (int __fd, const void *__buf,
+				    size_t __nbytes, __off64_t __offset),
+			   pwrite64) __wur
+    __attr_access ((__read_only__, 2, 3));
+#  else
+#   define pread pread64
+#   define pwrite pwrite64
+#  endif
+# endif
+
+# ifdef __USE_LARGEFILE64
+/* Read NBYTES into BUF from FD at the given position OFFSET without
+   changing the file pointer.  Return the number read, -1 for errors
+   or 0 for EOF.  */
+extern ssize_t pread64 (int __fd, void *__buf, size_t __nbytes,
+			__off64_t __offset) __wur
+    __fortified_attr_access (__write_only__, 2, 3);
+/* Write N bytes of BUF to FD at the given position OFFSET without
+   changing the file pointer.  Return the number written, or -1.  */
+extern ssize_t pwrite64 (int __fd, const void *__buf, size_t __n,
+			 __off64_t __offset) __wur
+    __attr_access ((__read_only__, 2, 3));
+# endif
+#endif
+
+/* Create a one-way communication channel (pipe).
+   If successful, two file descriptors are stored in PIPEDES;
+   bytes written on PIPEDES[1] can be read from PIPEDES[0].
+   Returns 0 if successful, -1 if not.  */
+extern int pipe (int __pipedes[2]) __THROW __wur;
+
+#ifdef __USE_GNU
+/* Same as pipe but apply flags passed in FLAGS to the new file
+   descriptors.  */
+extern int pipe2 (int __pipedes[2], int __flags) __THROW __wur;
+#endif
+
+/* Schedule an alarm.  In SECONDS seconds, the process will get a SIGALRM.
+   If SECONDS is zero, any currently scheduled alarm will be cancelled.
+   The function returns the number of seconds remaining until the last
+   alarm scheduled would have signaled, or zero if there wasn't one.
+   There is no return value to indicate an error, but you can set `errno'
+   to 0 and check its value after calling `alarm', and this might tell you.
+   The signal may come late due to processor scheduling.  */
+extern unsigned int alarm (unsigned int __seconds) __THROW;
+
+/* Make the process sleep for SECONDS seconds, or until a signal arrives
+   and is not ignored.  The function returns the number of seconds less
+   than SECONDS which it actually slept (thus zero if it slept the full time).
+   If a signal handler does a `longjmp' or modifies the handling of the
+   SIGALRM signal while inside `sleep' call, the handling of the SIGALRM
+   signal afterwards is undefined.  There is no return value to indicate
+   error, but if `sleep' returns SECONDS, it probably didn't work.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern unsigned int sleep (unsigned int __seconds);
+
+#if (defined __USE_XOPEN_EXTENDED && !defined __USE_XOPEN2K8) \
+    || defined __USE_MISC
+/* Set an alarm to go off (generating a SIGALRM signal) in VALUE
+   microseconds.  If INTERVAL is nonzero, when the alarm goes off, the
+   timer is reset to go off every INTERVAL microseconds thereafter.
+   Returns the number of microseconds remaining before the alarm.  */
+extern __useconds_t ualarm (__useconds_t __value, __useconds_t __interval)
+     __THROW;
+
+/* Sleep USECONDS microseconds, or until a signal arrives that is not blocked
+   or ignored.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern int usleep (__useconds_t __useconds);
+#endif
+
+
+/* Suspend the process until a signal arrives.
+   This always returns -1 and sets `errno' to EINTR.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern int pause (void);
+
+
+/* Change the owner and group of FILE.  */
+extern int chown (const char *__file, __uid_t __owner, __gid_t __group)
+     __THROW __nonnull ((1)) __wur;
+
+#if defined __USE_XOPEN_EXTENDED || defined __USE_XOPEN2K8
+/* Change the owner and group of the file that FD is open on.  */
+extern int fchown (int __fd, __uid_t __owner, __gid_t __group) __THROW __wur;
+
+
+/* Change owner and group of FILE, if it is a symbolic
+   link the ownership of the symbolic link is changed.  */
+extern int lchown (const char *__file, __uid_t __owner, __gid_t __group)
+     __THROW __nonnull ((1)) __wur;
+
+#endif /* Use X/Open Unix.  */
+
+#ifdef __USE_ATFILE
+/* Change the owner and group of FILE relative to the directory FD is open
+   on.  */
+extern int fchownat (int __fd, const char *__file, __uid_t __owner,
+		     __gid_t __group, int __flag)
+     __THROW __nonnull ((2)) __wur;
+#endif /* Use GNU.  */
+
+/* Change the process's working directory to PATH.  */
+extern int chdir (const char *__path) __THROW __nonnull ((1)) __wur;
+
+#if defined __USE_XOPEN_EXTENDED || defined __USE_XOPEN2K8
+/* Change the process's working directory to the one FD is open on.  */
+extern int fchdir (int __fd) __THROW __wur;
+#endif
+
+/* Get the pathname of the current working directory,
+   and put it in SIZE bytes of BUF.  Returns NULL if the
+   directory couldn't be determined or SIZE was too small.
+   If successful, returns BUF.  In GNU, if BUF is NULL,
+   an array is allocated with `malloc'; the array is SIZE
+   bytes long, unless SIZE == 0, in which case it is as
+   big as necessary.  */
+extern char *getcwd (char *__buf, size_t __size) __THROW __wur;
+
+#ifdef	__USE_GNU
+/* Return a malloc'd string containing the current directory name.
+   If the environment variable `PWD' is set, and its value is correct,
+   that value is used.  */
+extern char *get_current_dir_name (void) __THROW;
+#endif
+
+#if (defined __USE_XOPEN_EXTENDED && !defined __USE_XOPEN2K8) \
+    || defined __USE_MISC
+/* Put the absolute pathname of the current working directory in BUF.
+   If successful, return BUF.  If not, put an error message in
+   BUF and return NULL.  BUF should be at least PATH_MAX bytes long.  */
+extern char *getwd (char *__buf)
+     __THROW __nonnull ((1)) __attribute_deprecated__ __wur
+    __attr_access ((__write_only__, 1));
+#endif
+
+
+/* Duplicate FD, returning a new file descriptor on the same file.  */
+extern int dup (int __fd) __THROW __wur;
+
+/* Duplicate FD to FD2, closing FD2 and making it open on the same file.  */
+extern int dup2 (int __fd, int __fd2) __THROW;
+
+#ifdef __USE_GNU
+/* Duplicate FD to FD2, closing FD2 and making it open on the same
+   file while setting flags according to FLAGS.  */
+extern int dup3 (int __fd, int __fd2, int __flags) __THROW;
+#endif
+
+/* NULL-terminated array of "NAME=VALUE" environment variables.  */
+extern char **__environ;
+#ifdef __USE_GNU
 extern char **environ;
-int setresuid(uid_t, uid_t, uid_t);
-int setresgid(gid_t, gid_t, gid_t);
-int getresuid(uid_t *, uid_t *, uid_t *);
-int getresgid(gid_t *, gid_t *, gid_t *);
-char *get_current_dir_name(void);
-int syncfs(int);
-int euidaccess(const char *, int);
-int eaccess(const char *, int);
-ssize_t copy_file_range(int, off_t *, int, off_t *, size_t, unsigned);
-pid_t gettid(void);
 #endif
 
-#if defined(_LARGEFILE64_SOURCE) || defined(_GNU_SOURCE)
-#define lseek64 lseek
-#define pread64 pread
-#define pwrite64 pwrite
-#define truncate64 truncate
-#define ftruncate64 ftruncate
-#define lockf64 lockf
-#define off64_t off_t
+
+/* Replace the current process, executing PATH with arguments ARGV and
+   environment ENVP.  ARGV and ENVP are terminated by NULL pointers.  */
+extern int execve (const char *__path, char *const __argv[],
+		   char *const __envp[]) __THROW __nonnull ((1, 2));
+
+#ifdef __USE_XOPEN2K8
+/* Execute the file FD refers to, overlaying the running program image.
+   ARGV and ENVP are passed to the new program, as for `execve'.  */
+extern int fexecve (int __fd, char *const __argv[], char *const __envp[])
+     __THROW __nonnull ((2));
 #endif
 
-#define POSIX_CLOSE_RESTART     0
 
-#define _XOPEN_VERSION          700
-#define _XOPEN_UNIX             1
-#define _XOPEN_ENH_I18N         1
+/* Execute PATH with arguments ARGV and environment from `environ'.  */
+extern int execv (const char *__path, char *const __argv[])
+     __THROW __nonnull ((1, 2));
 
-#define _POSIX_VERSION          200809L
-#define _POSIX2_VERSION         _POSIX_VERSION
+/* Execute PATH with all arguments after PATH until a NULL pointer,
+   and the argument after that for environment.  */
+extern int execle (const char *__path, const char *__arg, ...)
+     __THROW __nonnull ((1, 2));
 
-#define _POSIX_ADVISORY_INFO    _POSIX_VERSION
-#define _POSIX_CHOWN_RESTRICTED 1
-#define _POSIX_IPV6             _POSIX_VERSION
-#define _POSIX_JOB_CONTROL      1
-#define _POSIX_MAPPED_FILES     _POSIX_VERSION
-#define _POSIX_MEMLOCK          _POSIX_VERSION
-#define _POSIX_MEMLOCK_RANGE    _POSIX_VERSION
-#define _POSIX_MEMORY_PROTECTION _POSIX_VERSION
-#define _POSIX_MESSAGE_PASSING  _POSIX_VERSION
-#define _POSIX_FSYNC            _POSIX_VERSION
-#define _POSIX_NO_TRUNC         1
-#define _POSIX_RAW_SOCKETS      _POSIX_VERSION
-#define _POSIX_REALTIME_SIGNALS _POSIX_VERSION
-#define _POSIX_REGEXP           1
-#define _POSIX_SAVED_IDS        1
-#define _POSIX_SHELL            1
-#define _POSIX_SPAWN            _POSIX_VERSION
-#define _POSIX_VDISABLE         0
+/* Execute PATH with all arguments after PATH until
+   a NULL pointer and environment from `environ'.  */
+extern int execl (const char *__path, const char *__arg, ...)
+     __THROW __nonnull ((1, 2));
 
-#define _POSIX_THREADS          _POSIX_VERSION
-#define _POSIX_THREAD_PROCESS_SHARED _POSIX_VERSION
-#define _POSIX_THREAD_SAFE_FUNCTIONS _POSIX_VERSION
-#define _POSIX_THREAD_ATTR_STACKADDR _POSIX_VERSION
-#define _POSIX_THREAD_ATTR_STACKSIZE _POSIX_VERSION
-#define _POSIX_THREAD_PRIORITY_SCHEDULING _POSIX_VERSION
-#define _POSIX_THREAD_CPUTIME   _POSIX_VERSION
-#define _POSIX_TIMERS           _POSIX_VERSION
-#define _POSIX_TIMEOUTS         _POSIX_VERSION
-#define _POSIX_MONOTONIC_CLOCK  _POSIX_VERSION
-#define _POSIX_CPUTIME          _POSIX_VERSION
-#define _POSIX_CLOCK_SELECTION  _POSIX_VERSION
-#define _POSIX_BARRIERS         _POSIX_VERSION
-#define _POSIX_SPIN_LOCKS       _POSIX_VERSION
-#define _POSIX_READER_WRITER_LOCKS _POSIX_VERSION
-#define _POSIX_ASYNCHRONOUS_IO  _POSIX_VERSION
-#define _POSIX_SEMAPHORES       _POSIX_VERSION
-#define _POSIX_SHARED_MEMORY_OBJECTS _POSIX_VERSION
+/* Execute FILE, searching in the `PATH' environment variable if it contains
+   no slashes, with arguments ARGV and environment from `environ'.  */
+extern int execvp (const char *__file, char *const __argv[])
+     __THROW __nonnull ((1, 2));
 
-#define _POSIX2_C_BIND          _POSIX_VERSION
+/* Execute FILE, searching in the `PATH' environment variable if
+   it contains no slashes, with all arguments after FILE until a
+   NULL pointer and environment from `environ'.  */
+extern int execlp (const char *__file, const char *__arg, ...)
+     __THROW __nonnull ((1, 2));
 
-#include <bits/posix.h>
-
-
-
-#define _PC_LINK_MAX	0
-#define _PC_MAX_CANON	1
-#define _PC_MAX_INPUT	2
-#define _PC_NAME_MAX	3
-#define _PC_PATH_MAX	4
-#define _PC_PIPE_BUF	5
-#define _PC_CHOWN_RESTRICTED	6
-#define _PC_NO_TRUNC	7
-#define _PC_VDISABLE	8
-#define _PC_SYNC_IO	9
-#define _PC_ASYNC_IO	10
-#define _PC_PRIO_IO	11
-#define _PC_SOCK_MAXBUF	12
-#define _PC_FILESIZEBITS	13
-#define _PC_REC_INCR_XFER_SIZE	14
-#define _PC_REC_MAX_XFER_SIZE	15
-#define _PC_REC_MIN_XFER_SIZE	16
-#define _PC_REC_XFER_ALIGN	17
-#define _PC_ALLOC_SIZE_MIN	18
-#define _PC_SYMLINK_MAX	19
-#define _PC_2_SYMLINKS	20
-
-#define _SC_ARG_MAX	0
-#define _SC_CHILD_MAX	1
-#define _SC_CLK_TCK	2
-#define _SC_NGROUPS_MAX	3
-#define _SC_OPEN_MAX	4
-#define _SC_STREAM_MAX	5
-#define _SC_TZNAME_MAX	6
-#define _SC_JOB_CONTROL	7
-#define _SC_SAVED_IDS	8
-#define _SC_REALTIME_SIGNALS	9
-#define _SC_PRIORITY_SCHEDULING	10
-#define _SC_TIMERS	11
-#define _SC_ASYNCHRONOUS_IO	12
-#define _SC_PRIORITIZED_IO	13
-#define _SC_SYNCHRONIZED_IO	14
-#define _SC_FSYNC	15
-#define _SC_MAPPED_FILES	16
-#define _SC_MEMLOCK	17
-#define _SC_MEMLOCK_RANGE	18
-#define _SC_MEMORY_PROTECTION	19
-#define _SC_MESSAGE_PASSING	20
-#define _SC_SEMAPHORES	21
-#define _SC_SHARED_MEMORY_OBJECTS	22
-#define _SC_AIO_LISTIO_MAX	23
-#define _SC_AIO_MAX	24
-#define _SC_AIO_PRIO_DELTA_MAX	25
-#define _SC_DELAYTIMER_MAX	26
-#define _SC_MQ_OPEN_MAX	27
-#define _SC_MQ_PRIO_MAX	28
-#define _SC_VERSION	29
-#define _SC_PAGE_SIZE	30
-#define _SC_PAGESIZE	30 /* !! */
-#define _SC_RTSIG_MAX	31
-#define _SC_SEM_NSEMS_MAX	32
-#define _SC_SEM_VALUE_MAX	33
-#define _SC_SIGQUEUE_MAX	34
-#define _SC_TIMER_MAX	35
-#define _SC_BC_BASE_MAX	36
-#define _SC_BC_DIM_MAX	37
-#define _SC_BC_SCALE_MAX	38
-#define _SC_BC_STRING_MAX	39
-#define _SC_COLL_WEIGHTS_MAX	40
-#define _SC_EXPR_NEST_MAX	42
-#define _SC_LINE_MAX	43
-#define _SC_RE_DUP_MAX	44
-#define _SC_2_VERSION	46
-#define _SC_2_C_BIND	47
-#define _SC_2_C_DEV	48
-#define _SC_2_FORT_DEV	49
-#define _SC_2_FORT_RUN	50
-#define _SC_2_SW_DEV	51
-#define _SC_2_LOCALEDEF	52
-#define _SC_UIO_MAXIOV	60 /* !! */
-#define _SC_IOV_MAX	60
-#define _SC_THREADS	67
-#define _SC_THREAD_SAFE_FUNCTIONS	68
-#define _SC_GETGR_R_SIZE_MAX	69
-#define _SC_GETPW_R_SIZE_MAX	70
-#define _SC_LOGIN_NAME_MAX	71
-#define _SC_TTY_NAME_MAX	72
-#define _SC_THREAD_DESTRUCTOR_ITERATIONS	73
-#define _SC_THREAD_KEYS_MAX	74
-#define _SC_THREAD_STACK_MIN	75
-#define _SC_THREAD_THREADS_MAX	76
-#define _SC_THREAD_ATTR_STACKADDR	77
-#define _SC_THREAD_ATTR_STACKSIZE	78
-#define _SC_THREAD_PRIORITY_SCHEDULING	79
-#define _SC_THREAD_PRIO_INHERIT	80
-#define _SC_THREAD_PRIO_PROTECT	81
-#define _SC_THREAD_PROCESS_SHARED	82
-#define _SC_NPROCESSORS_CONF	83
-#define _SC_NPROCESSORS_ONLN	84
-#define _SC_PHYS_PAGES	85
-#define _SC_AVPHYS_PAGES	86
-#define _SC_ATEXIT_MAX	87
-#define _SC_PASS_MAX	88
-#define _SC_XOPEN_VERSION	89
-#define _SC_XOPEN_XCU_VERSION	90
-#define _SC_XOPEN_UNIX	91
-#define _SC_XOPEN_CRYPT	92
-#define _SC_XOPEN_ENH_I18N	93
-#define _SC_XOPEN_SHM	94
-#define _SC_2_CHAR_TERM	95
-#define _SC_2_UPE	97
-#define _SC_XOPEN_XPG2	98
-#define _SC_XOPEN_XPG3	99
-#define _SC_XOPEN_XPG4	100
-#define _SC_NZERO	109
-#define _SC_XBS5_ILP32_OFF32	125
-#define _SC_XBS5_ILP32_OFFBIG	126
-#define _SC_XBS5_LP64_OFF64	127
-#define _SC_XBS5_LPBIG_OFFBIG	128
-#define _SC_XOPEN_LEGACY	129
-#define _SC_XOPEN_REALTIME	130
-#define _SC_XOPEN_REALTIME_THREADS	131
-#define _SC_ADVISORY_INFO	132
-#define _SC_BARRIERS	133
-#define _SC_CLOCK_SELECTION	137
-#define _SC_CPUTIME	138
-#define _SC_THREAD_CPUTIME	139
-#define _SC_MONOTONIC_CLOCK	149
-#define _SC_READER_WRITER_LOCKS	153
-#define _SC_SPIN_LOCKS	154
-#define _SC_REGEXP	155
-#define _SC_SHELL	157
-#define _SC_SPAWN	159
-#define _SC_SPORADIC_SERVER	160
-#define _SC_THREAD_SPORADIC_SERVER	161
-#define _SC_TIMEOUTS	164
-#define _SC_TYPED_MEMORY_OBJECTS	165
-#define _SC_2_PBS	168
-#define _SC_2_PBS_ACCOUNTING	169
-#define _SC_2_PBS_LOCATE	170
-#define _SC_2_PBS_MESSAGE	171
-#define _SC_2_PBS_TRACK	172
-#define _SC_SYMLOOP_MAX	173
-#define _SC_STREAMS	174
-#define _SC_2_PBS_CHECKPOINT	175
-#define _SC_V6_ILP32_OFF32	176
-#define _SC_V6_ILP32_OFFBIG	177
-#define _SC_V6_LP64_OFF64	178
-#define _SC_V6_LPBIG_OFFBIG	179
-#define _SC_HOST_NAME_MAX	180
-#define _SC_TRACE	181
-#define _SC_TRACE_EVENT_FILTER	182
-#define _SC_TRACE_INHERIT	183
-#define _SC_TRACE_LOG	184
-
-#define _SC_IPV6	235
-#define _SC_RAW_SOCKETS	236
-#define _SC_V7_ILP32_OFF32	237
-#define _SC_V7_ILP32_OFFBIG	238
-#define _SC_V7_LP64_OFF64	239
-#define _SC_V7_LPBIG_OFFBIG	240
-#define _SC_SS_REPL_MAX	241
-#define _SC_TRACE_EVENT_NAME_MAX	242
-#define _SC_TRACE_NAME_MAX	243
-#define _SC_TRACE_SYS_MAX	244
-#define _SC_TRACE_USER_EVENT_MAX	245
-#define _SC_XOPEN_STREAMS	246
-#define _SC_THREAD_ROBUST_PRIO_INHERIT	247
-#define _SC_THREAD_ROBUST_PRIO_PROTECT	248
-
-#define _CS_PATH	0
-#define _CS_POSIX_V6_WIDTH_RESTRICTED_ENVS	1
-#define _CS_GNU_LIBC_VERSION	2
-#define _CS_GNU_LIBPTHREAD_VERSION	3
-#define _CS_POSIX_V5_WIDTH_RESTRICTED_ENVS	4
-#define _CS_POSIX_V7_WIDTH_RESTRICTED_ENVS	5
-
-#define _CS_POSIX_V6_ILP32_OFF32_CFLAGS	1116
-#define _CS_POSIX_V6_ILP32_OFF32_LDFLAGS	1117
-#define _CS_POSIX_V6_ILP32_OFF32_LIBS	1118
-#define _CS_POSIX_V6_ILP32_OFF32_LINTFLAGS	1119
-#define _CS_POSIX_V6_ILP32_OFFBIG_CFLAGS	1120
-#define _CS_POSIX_V6_ILP32_OFFBIG_LDFLAGS	1121
-#define _CS_POSIX_V6_ILP32_OFFBIG_LIBS	1122
-#define _CS_POSIX_V6_ILP32_OFFBIG_LINTFLAGS	1123
-#define _CS_POSIX_V6_LP64_OFF64_CFLAGS	1124
-#define _CS_POSIX_V6_LP64_OFF64_LDFLAGS	1125
-#define _CS_POSIX_V6_LP64_OFF64_LIBS	1126
-#define _CS_POSIX_V6_LP64_OFF64_LINTFLAGS	1127
-#define _CS_POSIX_V6_LPBIG_OFFBIG_CFLAGS	1128
-#define _CS_POSIX_V6_LPBIG_OFFBIG_LDFLAGS	1129
-#define _CS_POSIX_V6_LPBIG_OFFBIG_LIBS	1130
-#define _CS_POSIX_V6_LPBIG_OFFBIG_LINTFLAGS	1131
-#define _CS_POSIX_V7_ILP32_OFF32_CFLAGS	1132
-#define _CS_POSIX_V7_ILP32_OFF32_LDFLAGS	1133
-#define _CS_POSIX_V7_ILP32_OFF32_LIBS	1134
-#define _CS_POSIX_V7_ILP32_OFF32_LINTFLAGS	1135
-#define _CS_POSIX_V7_ILP32_OFFBIG_CFLAGS	1136
-#define _CS_POSIX_V7_ILP32_OFFBIG_LDFLAGS	1137
-#define _CS_POSIX_V7_ILP32_OFFBIG_LIBS	1138
-#define _CS_POSIX_V7_ILP32_OFFBIG_LINTFLAGS	1139
-#define _CS_POSIX_V7_LP64_OFF64_CFLAGS	1140
-#define _CS_POSIX_V7_LP64_OFF64_LDFLAGS	1141
-#define _CS_POSIX_V7_LP64_OFF64_LIBS	1142
-#define _CS_POSIX_V7_LP64_OFF64_LINTFLAGS	1143
-#define _CS_POSIX_V7_LPBIG_OFFBIG_CFLAGS	1144
-#define _CS_POSIX_V7_LPBIG_OFFBIG_LDFLAGS	1145
-#define _CS_POSIX_V7_LPBIG_OFFBIG_LIBS	1146
-#define _CS_POSIX_V7_LPBIG_OFFBIG_LINTFLAGS	1147
-#define _CS_V6_ENV	1148
-#define _CS_V7_ENV	1149
-
-#ifdef __cplusplus
-}
+#ifdef __USE_GNU
+/* Execute FILE, searching in the `PATH' environment variable if it contains
+   no slashes, with arguments ARGV and environment from `environ'.  */
+extern int execvpe (const char *__file, char *const __argv[],
+		    char *const __envp[])
+     __THROW __nonnull ((1, 2));
 #endif
 
+
+#if defined __USE_MISC || defined __USE_XOPEN
+/* Add INC to priority of the current process.  */
+extern int nice (int __inc) __THROW __wur;
 #endif
+
+
+/* Terminate program execution with the low-order 8 bits of STATUS.  */
+extern void _exit (int __status) __attribute__ ((__noreturn__));
+
+
+/* Get the `_PC_*' symbols for the NAME argument to `pathconf' and `fpathconf';
+   the `_SC_*' symbols for the NAME argument to `sysconf';
+   and the `_CS_*' symbols for the NAME argument to `confstr'.  */
+#include <bits/confname.h>
+
+/* Get file-specific configuration information about PATH.  */
+extern long int pathconf (const char *__path, int __name)
+     __THROW __nonnull ((1));
+
+/* Get file-specific configuration about descriptor FD.  */
+extern long int fpathconf (int __fd, int __name) __THROW;
+
+/* Get the value of the system variable NAME.  */
+extern long int sysconf (int __name) __THROW;
+
+#ifdef	__USE_POSIX2
+/* Get the value of the string-valued system variable NAME.  */
+extern size_t confstr (int __name, char *__buf, size_t __len) __THROW
+    __fortified_attr_access (__write_only__, 2, 3);
+#endif
+
+
+/* Get the process ID of the calling process.  */
+extern __pid_t getpid (void) __THROW;
+
+/* Get the process ID of the calling process's parent.  */
+extern __pid_t getppid (void) __THROW;
+
+/* Get the process group ID of the calling process.  */
+extern __pid_t getpgrp (void) __THROW;
+
+/* Get the process group ID of process PID.  */
+extern __pid_t __getpgid (__pid_t __pid) __THROW;
+#if defined __USE_XOPEN_EXTENDED || defined __USE_XOPEN2K8
+extern __pid_t getpgid (__pid_t __pid) __THROW;
+#endif
+
+
+/* Set the process group ID of the process matching PID to PGID.
+   If PID is zero, the current process's process group ID is set.
+   If PGID is zero, the process ID of the process is used.  */
+extern int setpgid (__pid_t __pid, __pid_t __pgid) __THROW;
+
+#if defined __USE_MISC || defined __USE_XOPEN_EXTENDED
+/* Both System V and BSD have `setpgrp' functions, but with different
+   calling conventions.  The BSD function is the same as POSIX.1 `setpgid'
+   (above).  The System V function takes no arguments and puts the calling
+   process in its on group like `setpgid (0, 0)'.
+
+   New programs should always use `setpgid' instead.
+
+   GNU provides the POSIX.1 function.  */
+
+/* Set the process group ID of the calling process to its own PID.
+   This is exactly the same as `setpgid (0, 0)'.  */
+extern int setpgrp (void) __THROW;
+
+#endif	/* Use misc or X/Open.  */
+
+/* Create a new session with the calling process as its leader.
+   The process group IDs of the session and the calling process
+   are set to the process ID of the calling process, which is returned.  */
+extern __pid_t setsid (void) __THROW;
+
+#if defined __USE_XOPEN_EXTENDED || defined __USE_XOPEN2K8
+/* Return the session ID of the given process.  */
+extern __pid_t getsid (__pid_t __pid) __THROW;
+#endif
+
+/* Get the real user ID of the calling process.  */
+extern __uid_t getuid (void) __THROW;
+
+/* Get the effective user ID of the calling process.  */
+extern __uid_t geteuid (void) __THROW;
+
+/* Get the real group ID of the calling process.  */
+extern __gid_t getgid (void) __THROW;
+
+/* Get the effective group ID of the calling process.  */
+extern __gid_t getegid (void) __THROW;
+
+/* If SIZE is zero, return the number of supplementary groups
+   the calling process is in.  Otherwise, fill in the group IDs
+   of its supplementary groups in LIST and return the number written.  */
+extern int getgroups (int __size, __gid_t __list[]) __THROW __wur
+    __fortified_attr_access (__write_only__, 2, 1);
+#ifdef	__USE_GNU
+/* Return nonzero iff the calling process is in group GID.  */
+extern int group_member (__gid_t __gid) __THROW;
+#endif
+
+/* Set the user ID of the calling process to UID.
+   If the calling process is the super-user, set the real
+   and effective user IDs, and the saved set-user-ID to UID;
+   if not, the effective user ID is set to UID.  */
+extern int setuid (__uid_t __uid) __THROW __wur;
+
+#if defined __USE_MISC || defined __USE_XOPEN_EXTENDED
+/* Set the real user ID of the calling process to RUID,
+   and the effective user ID of the calling process to EUID.  */
+extern int setreuid (__uid_t __ruid, __uid_t __euid) __THROW __wur;
+#endif
+
+#ifdef __USE_XOPEN2K
+/* Set the effective user ID of the calling process to UID.  */
+extern int seteuid (__uid_t __uid) __THROW __wur;
+#endif /* Use POSIX.1-2001.  */
+
+/* Set the group ID of the calling process to GID.
+   If the calling process is the super-user, set the real
+   and effective group IDs, and the saved set-group-ID to GID;
+   if not, the effective group ID is set to GID.  */
+extern int setgid (__gid_t __gid) __THROW __wur;
+
+#if defined __USE_MISC || defined __USE_XOPEN_EXTENDED
+/* Set the real group ID of the calling process to RGID,
+   and the effective group ID of the calling process to EGID.  */
+extern int setregid (__gid_t __rgid, __gid_t __egid) __THROW __wur;
+#endif
+
+#ifdef __USE_XOPEN2K
+/* Set the effective group ID of the calling process to GID.  */
+extern int setegid (__gid_t __gid) __THROW __wur;
+#endif /* Use POSIX.1-2001.  */
+
+#ifdef __USE_GNU
+/* Fetch the real user ID, effective user ID, and saved-set user ID,
+   of the calling process.  */
+extern int getresuid (__uid_t *__ruid, __uid_t *__euid, __uid_t *__suid)
+     __THROW;
+
+/* Fetch the real group ID, effective group ID, and saved-set group ID,
+   of the calling process.  */
+extern int getresgid (__gid_t *__rgid, __gid_t *__egid, __gid_t *__sgid)
+     __THROW;
+
+/* Set the real user ID, effective user ID, and saved-set user ID,
+   of the calling process to RUID, EUID, and SUID, respectively.  */
+extern int setresuid (__uid_t __ruid, __uid_t __euid, __uid_t __suid)
+     __THROW __wur;
+
+/* Set the real group ID, effective group ID, and saved-set group ID,
+   of the calling process to RGID, EGID, and SGID, respectively.  */
+extern int setresgid (__gid_t __rgid, __gid_t __egid, __gid_t __sgid)
+     __THROW __wur;
+#endif
+
+
+/* Clone the calling process, creating an exact copy.
+   Return -1 for errors, 0 to the new process,
+   and the process ID of the new process to the old process.  */
+extern __pid_t fork (void) __THROWNL;
+
+#if (defined __USE_XOPEN_EXTENDED && !defined __USE_XOPEN2K8) \
+    || defined __USE_MISC
+/* Clone the calling process, but without copying the whole address space.
+   The calling process is suspended until the new process exits or is
+   replaced by a call to `execve'.  Return -1 for errors, 0 to the new process,
+   and the process ID of the new process to the old process.  */
+extern __pid_t vfork (void) __THROW;
+#endif /* Use misc or XPG < 7. */
+
+#ifdef __USE_GNU
+/* This is similar to fork, however it does not run the atfork handlers
+   neither reinitialize any internal locks in multithread case.
+   Different than fork, _Fork is async-signal-safe.  */
+extern __pid_t _Fork (void) __THROW;
+#endif
+
+
+/* Return the pathname of the terminal FD is open on, or NULL on errors.
+   The returned storage is good only until the next call to this function.  */
+extern char *ttyname (int __fd) __THROW;
+
+/* Store at most BUFLEN characters of the pathname of the terminal FD is
+   open on in BUF.  Return 0 on success, otherwise an error number.  */
+extern int ttyname_r (int __fd, char *__buf, size_t __buflen)
+     __THROW __nonnull ((2)) __wur
+     __fortified_attr_access (__write_only__, 2, 3);
+
+/* Return 1 if FD is a valid descriptor associated
+   with a terminal, zero if not.  */
+extern int isatty (int __fd) __THROW;
+
+#ifdef __USE_MISC
+/* Return the index into the active-logins file (utmp) for
+   the controlling terminal.  */
+extern int ttyslot (void) __THROW;
+#endif
+
+
+/* Make a link to FROM named TO.  */
+extern int link (const char *__from, const char *__to)
+     __THROW __nonnull ((1, 2)) __wur;
+
+#ifdef __USE_ATFILE
+/* Like link but relative paths in TO and FROM are interpreted relative
+   to FROMFD and TOFD respectively.  */
+extern int linkat (int __fromfd, const char *__from, int __tofd,
+		   const char *__to, int __flags)
+     __THROW __nonnull ((2, 4)) __wur;
+#endif
+
+#if defined __USE_XOPEN_EXTENDED || defined __USE_XOPEN2K
+/* Make a symbolic link to FROM named TO.  */
+extern int symlink (const char *__from, const char *__to)
+     __THROW __nonnull ((1, 2)) __wur;
+
+/* Read the contents of the symbolic link PATH into no more than
+   LEN bytes of BUF.  The contents are not null-terminated.
+   Returns the number of characters read, or -1 for errors.  */
+extern ssize_t readlink (const char *__restrict __path,
+			 char *__restrict __buf, size_t __len)
+     __THROW __nonnull ((1, 2)) __wur
+     __fortified_attr_access (__write_only__, 2, 3);
+
+#endif /* Use POSIX.1-2001.  */
+
+#ifdef __USE_ATFILE
+/* Like symlink but a relative path in TO is interpreted relative to TOFD.  */
+extern int symlinkat (const char *__from, int __tofd,
+		      const char *__to) __THROW __nonnull ((1, 3)) __wur;
+
+/* Like readlink but a relative PATH is interpreted relative to FD.  */
+extern ssize_t readlinkat (int __fd, const char *__restrict __path,
+			   char *__restrict __buf, size_t __len)
+     __THROW __nonnull ((2, 3)) __wur
+     __fortified_attr_access (__write_only__, 3, 4);
+#endif
+
+/* Remove the link NAME.  */
+extern int unlink (const char *__name) __THROW __nonnull ((1));
+
+#ifdef __USE_ATFILE
+/* Remove the link NAME relative to FD.  */
+extern int unlinkat (int __fd, const char *__name, int __flag)
+     __THROW __nonnull ((2));
+#endif
+
+/* Remove the directory PATH.  */
+extern int rmdir (const char *__path) __THROW __nonnull ((1));
+
+
+/* Return the foreground process group ID of FD.  */
+extern __pid_t tcgetpgrp (int __fd) __THROW;
+
+/* Set the foreground process group ID of FD set PGRP_ID.  */
+extern int tcsetpgrp (int __fd, __pid_t __pgrp_id) __THROW;
+
+
+/* Return the login name of the user.
+
+   This function is a possible cancellation point and therefore not
+   marked with __THROW.  */
+extern char *getlogin (void);
+#ifdef __USE_POSIX199506
+/* Return at most NAME_LEN characters of the login name of the user in NAME.
+   If it cannot be determined or some other error occurred, return the error
+   code.  Otherwise return 0.
+
+   This function is a possible cancellation point and therefore not
+   marked with __THROW.  */
+extern int getlogin_r (char *__name, size_t __name_len) __nonnull ((1))
+    __fortified_attr_access (__write_only__, 1, 2);
+#endif
+
+#ifdef	__USE_MISC
+/* Set the login name returned by `getlogin'.  */
+extern int setlogin (const char *__name) __THROW __nonnull ((1));
+#endif
+
+
+#ifdef	__USE_POSIX2
+/* Get definitions and prototypes for functions to process the
+   arguments in ARGV (ARGC of them, minus the program name) for
+   options given in OPTS.  */
+# include <bits/getopt_posix.h>
+#endif
+
+
+#if defined __USE_XOPEN_EXTENDED || defined __USE_XOPEN2K
+/* Put the name of the current host in no more than LEN bytes of NAME.
+   The result is null-terminated if LEN is large enough for the full
+   name and the terminator.  */
+extern int gethostname (char *__name, size_t __len) __THROW __nonnull ((1))
+    __fortified_attr_access (__write_only__, 1, 2);
+#endif
+
+
+#if defined __USE_MISC
+/* Set the name of the current host to NAME, which is LEN bytes long.
+   This call is restricted to the super-user.  */
+extern int sethostname (const char *__name, size_t __len)
+     __THROW __nonnull ((1)) __wur __attr_access ((__read_only__, 1, 2));
+
+/* Set the current machine's Internet number to ID.
+   This call is restricted to the super-user.  */
+extern int sethostid (long int __id) __THROW __wur;
+
+
+/* Get and set the NIS (aka YP) domain name, if any.
+   Called just like `gethostname' and `sethostname'.
+   The NIS domain name is usually the empty string when not using NIS.  */
+extern int getdomainname (char *__name, size_t __len)
+     __THROW __nonnull ((1)) __wur
+     __fortified_attr_access (__write_only__, 1, 2);
+extern int setdomainname (const char *__name, size_t __len)
+     __THROW __nonnull ((1)) __wur __attr_access ((__read_only__, 1, 2));
+
+/* Revoke access permissions to all processes currently communicating
+   with the control terminal, and then send a SIGHUP signal to the process
+   group of the control terminal.  */
+extern int vhangup (void) __THROW;
+
+/* Revoke the access of all descriptors currently open on FILE.  */
+extern int revoke (const char *__file) __THROW __nonnull ((1)) __wur;
+
+
+/* Enable statistical profiling, writing samples of the PC into at most
+   SIZE bytes of SAMPLE_BUFFER; every processor clock tick while profiling
+   is enabled, the system examines the user PC and increments
+   SAMPLE_BUFFER[((PC - OFFSET) / 2) * SCALE / 65536].  If SCALE is zero,
+   disable profiling.  Returns zero on success, -1 on error.  */
+extern int profil (unsigned short int *__sample_buffer, size_t __size,
+		   size_t __offset, unsigned int __scale)
+     __THROW __nonnull ((1));
+
+
+/* Turn accounting on if NAME is an existing file.  The system will then write
+   a record for each process as it terminates, to this file.  If NAME is NULL,
+   turn accounting off.  This call is restricted to the super-user.  */
+extern int acct (const char *__name) __THROW;
+
+
+/* Successive calls return the shells listed in `/etc/shells'.  */
+extern char *getusershell (void) __THROW;
+extern void endusershell (void) __THROW; /* Discard cached info.  */
+extern void setusershell (void) __THROW; /* Rewind and re-read the file.  */
+
+
+/* Put the program in the background, and dissociate from the controlling
+   terminal.  If NOCHDIR is zero, do `chdir ("/")'.  If NOCLOSE is zero,
+   redirects stdin, stdout, and stderr to /dev/null.  */
+extern int daemon (int __nochdir, int __noclose) __THROW __wur;
+#endif /* Use misc.  */
+
+
+#if defined __USE_MISC || (defined __USE_XOPEN && !defined __USE_XOPEN2K)
+/* Make PATH be the root directory (the starting point for absolute paths).
+   This call is restricted to the super-user.  */
+extern int chroot (const char *__path) __THROW __nonnull ((1)) __wur;
+
+/* Prompt with PROMPT and read a string from the terminal without echoing.
+   Uses /dev/tty if possible; otherwise stderr and stdin.  */
+extern char *getpass (const char *__prompt) __nonnull ((1));
+#endif /* Use misc || X/Open.  */
+
+
+/* Make all changes done to FD actually appear on disk.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern int fsync (int __fd);
+
+
+#ifdef __USE_GNU
+/* Make all changes done to all files on the file system associated
+   with FD actually appear on disk.  */
+extern int syncfs (int __fd) __THROW;
+#endif
+
+
+#if defined __USE_MISC || defined __USE_XOPEN_EXTENDED
+
+/* Return identifier for the current host.  */
+extern long int gethostid (void);
+
+/* Make all changes done to all files actually appear on disk.  */
+extern void sync (void) __THROW;
+
+
+# if defined __USE_MISC || !defined __USE_XOPEN2K
+/* Return the number of bytes in a page.  This is the system's page size,
+   which is not necessarily the same as the hardware page size.  */
+extern int getpagesize (void)  __THROW __attribute__ ((__const__));
+
+
+/* Return the maximum number of file descriptors
+   the current process could possibly have.  */
+extern int getdtablesize (void) __THROW;
+# endif
+
+#endif /* Use misc || X/Open Unix.  */
+
+
+#if defined __USE_XOPEN_EXTENDED || defined __USE_XOPEN2K8
+
+/* Truncate FILE to LENGTH bytes.  */
+# ifndef __USE_FILE_OFFSET64
+extern int truncate (const char *__file, __off_t __length)
+     __THROW __nonnull ((1)) __wur;
+# else
+#  ifdef __REDIRECT_NTH
+extern int __REDIRECT_NTH (truncate,
+			   (const char *__file, __off64_t __length),
+			   truncate64) __nonnull ((1)) __wur;
+#  else
+#   define truncate truncate64
+#  endif
+# endif
+# ifdef __USE_LARGEFILE64
+extern int truncate64 (const char *__file, __off64_t __length)
+     __THROW __nonnull ((1)) __wur;
+# endif
+
+#endif /* Use X/Open Unix || POSIX 2008.  */
+
+#if defined __USE_POSIX199309 \
+    || defined __USE_XOPEN_EXTENDED || defined __USE_XOPEN2K
+
+/* Truncate the file FD is open on to LENGTH bytes.  */
+# ifndef __USE_FILE_OFFSET64
+extern int ftruncate (int __fd, __off_t __length) __THROW __wur;
+# else
+#  ifdef __REDIRECT_NTH
+extern int __REDIRECT_NTH (ftruncate, (int __fd, __off64_t __length),
+			   ftruncate64) __wur;
+#  else
+#   define ftruncate ftruncate64
+#  endif
+# endif
+# ifdef __USE_LARGEFILE64
+extern int ftruncate64 (int __fd, __off64_t __length) __THROW __wur;
+# endif
+
+#endif /* Use POSIX.1b || X/Open Unix || XPG6.  */
+
+
+#if (defined __USE_XOPEN_EXTENDED && !defined __USE_XOPEN2K) \
+    || defined __USE_MISC
+
+/* Set the end of accessible data space (aka "the break") to ADDR.
+   Returns zero on success and -1 for errors (with errno set).  */
+extern int brk (void *__addr) __THROW __wur;
+
+/* Increase or decrease the end of accessible data space by DELTA bytes.
+   If successful, returns the address the previous end of data space
+   (i.e. the beginning of the new space, if DELTA > 0);
+   returns (void *) -1 for errors (with errno set).  */
+extern void *sbrk (intptr_t __delta) __THROW;
+#endif
+
+
+#ifdef __USE_MISC
+/* Invoke `system call' number SYSNO, passing it the remaining arguments.
+   This is completely system-dependent, and not often useful.
+
+   In Unix, `syscall' sets `errno' for all errors and most calls return -1
+   for errors; in many systems you cannot pass arguments or get return
+   values for all system calls (`pipe', `fork', and `getppid' typically
+   among them).
+
+   In Mach, all system calls take normal arguments and always return an
+   error code (zero for success).  */
+extern long int syscall (long int __sysno, ...) __THROW;
+
+#endif	/* Use misc.  */
+
+
+#if (defined __USE_MISC || defined __USE_XOPEN_EXTENDED) && !defined F_LOCK
+/* NOTE: These declarations also appear in <fcntl.h>; be sure to keep both
+   files consistent.  Some systems have them there and some here, and some
+   software depends on the macros being defined without including both.  */
+
+/* `lockf' is a simpler interface to the locking facilities of `fcntl'.
+   LEN is always relative to the current file position.
+   The CMD argument is one of the following.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+
+# define F_ULOCK 0	/* Unlock a previously locked region.  */
+# define F_LOCK  1	/* Lock a region for exclusive use.  */
+# define F_TLOCK 2	/* Test and lock a region for exclusive use.  */
+# define F_TEST  3	/* Test a region for other processes locks.  */
+
+# ifndef __USE_FILE_OFFSET64
+extern int lockf (int __fd, int __cmd, __off_t __len) __wur;
+# else
+#  ifdef __REDIRECT
+extern int __REDIRECT (lockf, (int __fd, int __cmd, __off64_t __len),
+		       lockf64) __wur;
+#  else
+#   define lockf lockf64
+#  endif
+# endif
+# ifdef __USE_LARGEFILE64
+extern int lockf64 (int __fd, int __cmd, __off64_t __len) __wur;
+# endif
+#endif /* Use misc and F_LOCK not already defined.  */
+
+
+#ifdef __USE_GNU
+
+/* Evaluate EXPRESSION, and repeat as long as it returns -1 with `errno'
+   set to EINTR.  */
+
+# define TEMP_FAILURE_RETRY(expression) \
+  (__extension__							      \
+    ({ long int __result;						      \
+       do __result = (long int) (expression);				      \
+       while (__result == -1L && errno == EINTR);			      \
+       __result; }))
+
+/* Copy LENGTH bytes from INFD to OUTFD.  */
+ssize_t copy_file_range (int __infd, __off64_t *__pinoff,
+			 int __outfd, __off64_t *__poutoff,
+			 size_t __length, unsigned int __flags);
+#endif /* __USE_GNU */
+
+#if defined __USE_POSIX199309 || defined __USE_UNIX98
+/* Synchronize at least the data part of a file with the underlying
+   media.  */
+extern int fdatasync (int __fildes);
+#endif /* Use POSIX199309 */
+
+#ifdef __USE_MISC
+/* One-way hash PHRASE, returning a string suitable for storage in the
+   user database.  SALT selects the one-way function to use, and
+   ensures that no two users' hashes are the same, even if they use
+   the same passphrase.  The return value points to static storage
+   which will be overwritten by the next call to crypt.
+
+   This declaration is deprecated; applications should include
+   <crypt.h> instead.  */
+extern char *crypt (const char *__key, const char *__salt)
+     __THROW __nonnull ((1, 2));
+#endif
+
+#ifdef	__USE_XOPEN
+/* Swab pairs bytes in the first N bytes of the area pointed to by
+   FROM and copy the result to TO.  The value of TO must not be in the
+   range [FROM - N + 1, FROM - 1].  If N is odd the first byte in FROM
+   is without partner.  */
+extern void swab (const void *__restrict __from, void *__restrict __to,
+		  ssize_t __n) __THROW __nonnull ((1, 2))
+    __attr_access ((__read_only__, 1, 3))
+    __attr_access ((__write_only__, 2, 3));
+#endif
+
+
+/* Prior to Issue 6, the Single Unix Specification required these
+   prototypes to appear in this header.  They are also found in
+   <stdio.h>.  */
+#if defined __USE_XOPEN && !defined __USE_XOPEN2K
+/* Return the name of the controlling terminal.  */
+extern char *ctermid (char *__s) __THROW;
+
+/* Return the name of the current user.  */
+extern char *cuserid (char *__s);
+#endif
+
+
+/* Unix98 requires this function to be declared here.  In other
+   standards it is in <pthread.h>.  */
+#if defined __USE_UNIX98 && !defined __USE_XOPEN2K
+extern int pthread_atfork (void (*__prepare) (void),
+			   void (*__parent) (void),
+			   void (*__child) (void)) __THROW;
+#endif
+
+#ifdef __USE_MISC
+/* Write LENGTH bytes of randomness starting at BUFFER.  Return 0 on
+   success or -1 on error.  */
+int getentropy (void *__buffer, size_t __length) __wur
+    __attr_access ((__write_only__, 1, 2));
+#endif
+
+#ifdef __USE_GNU
+/* Close all file descriptors in the range FD up to MAX_FD.  The flag FLAGS
+   are define by the CLOSE_RANGE prefix.  This function behaves like close
+   on the range and gaps where the file descriptor is invalid or errors
+   encountered while closing file descriptors are ignored.   Returns 0 on
+   successor or -1 for failure (and sets errno accordingly).  */
+extern int close_range (unsigned int __fd, unsigned int __max_fd,
+			int __flags) __THROW;
+#endif
+
+/* Define some macros helping to catch buffer overflows.  */
+#if __USE_FORTIFY_LEVEL > 0 && defined __fortify_function
+# include <bits/unistd.h>
+#endif
+
+/* System-specific extensions.  */
+#include <bits/unistd_ext.h>
+
+__END_DECLS
+
+#endif /* unistd.h  */

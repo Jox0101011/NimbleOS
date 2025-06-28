@@ -1,36 +1,47 @@
+/* Copyright (C) 1996-2025 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, see
+   <https://www.gnu.org/licenses/>.  */
+
 #ifndef _SYS_SYSINFO_H
-#define _SYS_SYSINFO_H
+#define _SYS_SYSINFO_H	1
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <features.h>
 
-#define SI_LOAD_SHIFT 16
+/* Get sysinfo structure from kernel header.  */
+#include <linux/kernel.h>
 
-struct sysinfo {
-	unsigned long uptime;
-	unsigned long loads[3];
-	unsigned long totalram;
-	unsigned long freeram;
-	unsigned long sharedram;
-	unsigned long bufferram;
-	unsigned long totalswap;
-	unsigned long freeswap;
-	unsigned short procs, pad;
-	unsigned long totalhigh;
-	unsigned long freehigh;
-	unsigned mem_unit;
-	char __reserved[256];
-};
+__BEGIN_DECLS
 
-int sysinfo (struct sysinfo *);
-int get_nprocs_conf (void);
-int get_nprocs (void);
-long get_phys_pages (void);
-long get_avphys_pages (void);
+/* Returns information on overall system statistics.  */
+extern int sysinfo (struct sysinfo *__info) __THROW;
 
-#ifdef __cplusplus
-}
-#endif
 
-#endif
+/* Return number of configured processors.  */
+extern int get_nprocs_conf (void) __THROW;
+
+/* Return number of available processors.  */
+extern int get_nprocs (void) __THROW;
+
+
+/* Return number of physical pages of memory in the system.  */
+extern long int get_phys_pages (void) __THROW;
+
+/* Return number of available physical pages of memory in the system.  */
+extern long int get_avphys_pages (void) __THROW;
+
+__END_DECLS
+
+#endif	/* sys/sysinfo.h */

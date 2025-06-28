@@ -1,49 +1,92 @@
-#ifndef	_SETJMP_H
-#define	_SETJMP_H
+/* Copyright (C) 1991-2025 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, see
+   <https://www.gnu.org/licenses/>.  */
+
+/*
+ *	ISO C99 Standard: 7.13 Nonlocal jumps	<setjmp.h>
+ */
+
+#ifndef	_SETJMP_H
+#define	_SETJMP_H	1
 
 #include <features.h>
 
-#include <bits/setjmp.h>
+__BEGIN_DECLS
 
-typedef struct __jmp_buf_tag {
-	__jmp_buf __jb;
-	unsigned long __fl;
-	unsigned long __ss[128/sizeof(long)];
-} jmp_buf[1];
+#include <bits/setjmp.h>		/* Get `__jmp_buf'.  */
+#include <bits/types/struct___jmp_buf_tag.h>
 
-#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 1)
-#define __setjmp_attr __attribute__((__returns_twice__))
-#else
-#define __setjmp_attr
+typedef struct __jmp_buf_tag jmp_buf[1];
+
+/* Store the calling environment in ENV, also saving the signal mask.
+   Return 0.  */
+extern int setjmp (jmp_buf __env) __THROWNL;
+
+/* Store the calling environment in ENV, also saving the
+   signal mask if SAVEMASK is nonzero.  Return 0.
+   This is the internal name for `sigsetjmp'.  */
+extern int __sigsetjmp (struct __jmp_buf_tag __env[1], int __savemask) __THROWNL;
+
+/* Store the calling environment in ENV, not saving the signal mask.
+   Return 0.  */
+extern int _setjmp (struct __jmp_buf_tag __env[1]) __THROWNL;
+
+/* Do not save the signal mask.  This is equivalent to the `_setjmp'
+   BSD function.  */
+#define setjmp(env)	_setjmp (env)
+
+
+/* Jump to the environment saved in ENV, making the
+   `setjmp' call there return VAL, or 1 if VAL is 0.  */
+extern void longjmp (struct __jmp_buf_tag __env[1], int __val)
+     __THROWNL __attribute__ ((__noreturn__));
+
+#if defined __USE_MISC || defined __USE_XOPEN
+/* Same.  Usually `_longjmp' is used with `_setjmp', which does not save
+   the signal mask.  But it is how ENV was saved that determines whether
+   `longjmp' restores the mask; `_longjmp' is just an alias.  */
+extern void _longjmp (struct __jmp_buf_tag __env[1], int __val)
+     __THROWNL __attribute__ ((__noreturn__));
 #endif
 
-#if defined(_POSIX_SOURCE) || defined(_POSIX_C_SOURCE) \
- || defined(_XOPEN_SOURCE) || defined(_GNU_SOURCE) \
- || defined(_BSD_SOURCE)
-typedef jmp_buf sigjmp_buf;
-int sigsetjmp (sigjmp_buf, int) __setjmp_attr;
-_Noreturn void siglongjmp (sigjmp_buf, int);
+
+#ifdef	__USE_POSIX
+/* Use the same type for `jmp_buf' and `sigjmp_buf'.
+   The `__mask_was_saved' flag determines whether
+   or not `longjmp' will restore the signal mask.  */
+typedef struct __jmp_buf_tag sigjmp_buf[1];
+
+/* Store the calling environment in ENV, also saving the
+   signal mask if SAVEMASK is nonzero.  Return 0.  */
+# define sigsetjmp(env, savemask)	__sigsetjmp (env, savemask)
+
+/* Jump to the environment saved in ENV, making the
+   sigsetjmp call there return VAL, or 1 if VAL is 0.
+   Restore the signal mask if that sigsetjmp call saved it.
+   This is just an alias `longjmp'.  */
+extern void siglongjmp (sigjmp_buf __env, int __val)
+     __THROWNL __attribute__ ((__noreturn__));
+#endif /* Use POSIX.  */
+
+
+/* Define helper functions to catch unsafe code.  */
+#if __USE_FORTIFY_LEVEL > 0
+# include <bits/setjmp2.h>
 #endif
 
-#if defined(_XOPEN_SOURCE) || defined(_GNU_SOURCE) \
- || defined(_BSD_SOURCE)
-int _setjmp (jmp_buf) __setjmp_attr;
-_Noreturn void _longjmp (jmp_buf, int);
-#endif
+__END_DECLS
 
-int setjmp (jmp_buf) __setjmp_attr;
-_Noreturn void longjmp (jmp_buf, int);
-
-#define setjmp setjmp
-
-#undef __setjmp_attr
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif
+#endif /* setjmp.h  */

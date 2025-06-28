@@ -1,31 +1,47 @@
+/* Copyright (C) 1991-2025 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, see
+   <https://www.gnu.org/licenses/>.  */
+
 #ifndef	_SYS_UN_H
-#define	_SYS_UN_H
+#define	_SYS_UN_H	1
 
-#ifdef __cplusplus
-extern "C" {
+#include <sys/cdefs.h>
+
+/* Get the definition of the macro to define the common sockaddr members.  */
+#include <bits/sockaddr.h>
+
+__BEGIN_DECLS
+
+/* Structure describing the address of an AF_LOCAL (aka AF_UNIX) socket.  */
+struct __attribute_struct_may_alias__ sockaddr_un
+  {
+    __SOCKADDR_COMMON (sun_);
+    char sun_path[108];		/* Path name.  */
+  };
+
+
+#ifdef __USE_MISC
+# include <stddef.h>
+# include <string.h>		/* For prototype of `strlen'.  */
+
+/* Evaluate to actual length of the `sockaddr_un' structure.  */
+# define SUN_LEN(ptr) (offsetof (struct sockaddr_un, sun_path)		      \
+		      + strlen ((ptr)->sun_path))
 #endif
 
-#include <features.h>
+__END_DECLS
 
-#define __NEED_sa_family_t
-#if defined(_GNU_SOURCE) || defined(_BSD_SOURCE)
-#define __NEED_size_t
-#endif
-
-#include <bits/alltypes.h>
-
-struct sockaddr_un {
-	sa_family_t sun_family;
-	char sun_path[108];
-};
-
-#if defined(_GNU_SOURCE) || defined(_BSD_SOURCE)
-size_t strlen(const char *);
-#define SUN_LEN(s) (2+strlen((s)->sun_path))
-#endif
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif
+#endif	/* sys/un.h  */

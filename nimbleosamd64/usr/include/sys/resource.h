@@ -1,116 +1,114 @@
-#ifndef	_SYS_RESOURCE_H
-#define	_SYS_RESOURCE_H
+/* Copyright (C) 1992-2025 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, see
+   <https://www.gnu.org/licenses/>.  */
+
+#ifndef	_SYS_RESOURCE_H
+#define	_SYS_RESOURCE_H	1
 
 #include <features.h>
-#include <sys/time.h>
 
-#define __NEED_id_t
-
-#ifdef _GNU_SOURCE
-#define __NEED_pid_t
-#endif
-
-#include <bits/alltypes.h>
+/* Get the system-dependent definitions of structures and bit values.  */
 #include <bits/resource.h>
 
-typedef unsigned long long rlim_t;
-
-struct rlimit {
-	rlim_t rlim_cur;
-	rlim_t rlim_max;
-};
-
-struct rusage {
-	struct timeval ru_utime;
-	struct timeval ru_stime;
-	/* linux extentions, but useful */
-	long	ru_maxrss;
-	long	ru_ixrss;
-	long	ru_idrss;
-	long	ru_isrss;
-	long	ru_minflt;
-	long	ru_majflt;
-	long	ru_nswap;
-	long	ru_inblock;
-	long	ru_oublock;
-	long	ru_msgsnd;
-	long	ru_msgrcv;
-	long	ru_nsignals;
-	long	ru_nvcsw;
-	long	ru_nivcsw;
-	/* room for more... */
-	long    __reserved[16];
-};
-
-int getrlimit (int, struct rlimit *);
-int setrlimit (int, const struct rlimit *);
-int getrusage (int, struct rusage *);
-
-int getpriority (int, id_t);
-int setpriority (int, id_t, int);
-
-#ifdef _GNU_SOURCE
-int prlimit(pid_t, int, const struct rlimit *, struct rlimit *);
-#define prlimit64 prlimit
+#ifndef __id_t_defined
+typedef __id_t id_t;
+# define __id_t_defined
 #endif
 
-#define PRIO_MIN (-20)
-#define PRIO_MAX 20
+__BEGIN_DECLS
 
-#define PRIO_PROCESS 0
-#define PRIO_PGRP    1
-#define PRIO_USER    2
-
-#define RUSAGE_SELF     0
-#define RUSAGE_CHILDREN (-1)
-#define RUSAGE_THREAD   1
-
-#define RLIM_INFINITY (~0ULL)
-#define RLIM_SAVED_CUR RLIM_INFINITY
-#define RLIM_SAVED_MAX RLIM_INFINITY
-
-#define RLIMIT_CPU     0
-#define RLIMIT_FSIZE   1
-#define RLIMIT_DATA    2
-#define RLIMIT_STACK   3
-#define RLIMIT_CORE    4
-#ifndef RLIMIT_RSS
-#define RLIMIT_RSS     5
-#define RLIMIT_NPROC   6
-#define RLIMIT_NOFILE  7
-#define RLIMIT_MEMLOCK 8
-#define RLIMIT_AS      9
-#endif
-#define RLIMIT_LOCKS   10
-#define RLIMIT_SIGPENDING 11
-#define RLIMIT_MSGQUEUE 12
-#define RLIMIT_NICE    13
-#define RLIMIT_RTPRIO  14
-#define RLIMIT_RTTIME  15
-#define RLIMIT_NLIMITS 16
-
-#define RLIM_NLIMITS RLIMIT_NLIMITS
-
-#if defined(_LARGEFILE64_SOURCE) || defined(_GNU_SOURCE)
-#define RLIM64_INFINITY RLIM_INFINITY
-#define RLIM64_SAVED_CUR RLIM_SAVED_CUR
-#define RLIM64_SAVED_MAX RLIM_SAVED_MAX
-#define getrlimit64 getrlimit
-#define setrlimit64 setrlimit
-#define rlimit64 rlimit
-#define rlim64_t rlim_t
+/* The X/Open standard defines that all the functions below must use
+   `int' as the type for the first argument.  When we are compiling with
+   GNU extensions we change this slightly to provide better error
+   checking.  */
+#if defined __USE_GNU && !defined __cplusplus
+typedef enum __rlimit_resource __rlimit_resource_t;
+typedef enum __rusage_who __rusage_who_t;
+typedef enum __priority_which __priority_which_t;
+#else
+typedef int __rlimit_resource_t;
+typedef int __rusage_who_t;
+typedef int __priority_which_t;
 #endif
 
-#if _REDIR_TIME64
-__REDIR(getrusage, __getrusage_time64);
+/* Put the soft and hard limits for RESOURCE in *RLIMITS.
+   Returns 0 if successful, -1 if not (and sets errno).  */
+#ifndef __USE_FILE_OFFSET64
+extern int getrlimit (__rlimit_resource_t __resource,
+		      struct rlimit *__rlimits) __THROW __nonnull ((2));
+#else
+# ifdef __REDIRECT_NTH
+extern int __REDIRECT_NTH (getrlimit, (__rlimit_resource_t __resource,
+				       struct rlimit *__rlimits), getrlimit64)
+				       __nonnull ((2));
+# else
+#  define getrlimit getrlimit64
+# endif
+#endif
+#ifdef __USE_LARGEFILE64
+extern int getrlimit64 (__rlimit_resource_t __resource,
+			struct rlimit64 *__rlimits) __THROW __nonnull ((2));
 #endif
 
-#ifdef __cplusplus
-}
+/* Set the soft and hard limits for RESOURCE to *RLIMITS.
+   Only the super-user can increase hard limits.
+   Return 0 if successful, -1 if not (and sets errno).  */
+#ifndef __USE_FILE_OFFSET64
+extern int setrlimit (__rlimit_resource_t __resource,
+		      const struct rlimit *__rlimits) __THROW __nonnull ((2));
+#else
+# ifdef __REDIRECT_NTH
+extern int __REDIRECT_NTH (setrlimit, (__rlimit_resource_t __resource,
+				       const struct rlimit *__rlimits),
+			   setrlimit64) __nonnull ((2));
+# else
+#  define setrlimit setrlimit64
+# endif
+#endif
+#ifdef __USE_LARGEFILE64
+extern int setrlimit64 (__rlimit_resource_t __resource,
+			const struct rlimit64 *__rlimits) __THROW
+			__nonnull ((2));
 #endif
 
+/* Return resource usage information on process indicated by WHO
+   and put it in *USAGE.  Returns 0 for success, -1 for failure.  */
+extern int getrusage (__rusage_who_t __who, struct rusage *__usage) __THROW;
+
+#ifdef __USE_TIME64_REDIRECTS
+# if defined(__REDIRECT_NTH)
+extern int __REDIRECT_NTH (getrusage, (__rusage_who_t __who,
+                                       struct rusage *__usage),
+                           __getrusage64);
+# else
+# define getrusage __getrusage64
+# endif
 #endif
+
+/* Return the highest priority of any process specified by WHICH and WHO
+   (see above); if WHO is zero, the current process, process group, or user
+   (as specified by WHO) is used.  A lower priority number means higher
+   priority.  Priorities range from PRIO_MIN to PRIO_MAX (above).  */
+extern int getpriority (__priority_which_t __which, id_t __who) __THROW;
+
+/* Set the priority of all processes specified by WHICH and WHO (see above)
+   to PRIO.  Returns 0 on success, -1 on errors.  */
+extern int setpriority (__priority_which_t __which, id_t __who, int __prio)
+     __THROW;
+
+__END_DECLS
+
+#endif	/* sys/resource.h  */

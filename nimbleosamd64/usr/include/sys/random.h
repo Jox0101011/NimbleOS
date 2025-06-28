@@ -1,20 +1,45 @@
+/* Interfaces for obtaining random bytes.
+   Copyright (C) 2016-2025 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, see
+   <https://www.gnu.org/licenses/>.  */
+
 #ifndef _SYS_RANDOM_H
-#define _SYS_RANDOM_H
-#ifdef __cplusplus
-extern "C" {
-#endif
+#define _SYS_RANDOM_H 1
 
-#define __NEED_size_t
-#define __NEED_ssize_t
-#include <bits/alltypes.h>
+#include <features.h>
+#include <sys/types.h>
 
-#define GRND_NONBLOCK	0x0001
-#define GRND_RANDOM	0x0002
-#define GRND_INSECURE	0x0004
+/* Flags for use with getrandom.  */
+#define GRND_NONBLOCK 0x01
+#define GRND_RANDOM 0x02
+#define GRND_INSECURE 0x04
 
-ssize_t getrandom(void *, size_t, unsigned);
+__BEGIN_DECLS
 
-#ifdef __cplusplus
-}
-#endif
-#endif
+/* Write LENGTH bytes of randomness starting at BUFFER.  Return the
+   number of bytes written, or -1 on error.  */
+ssize_t getrandom (void *__buffer, size_t __length,
+                   unsigned int __flags) __wur
+                   __attr_access ((__write_only__, 1, 2));
+
+/* Write LENGTH bytes of randomness starting at BUFFER.  Return 0 on
+   success or -1 on error.  */
+int getentropy (void *__buffer, size_t __length) __wur
+                __attr_access ((__write_only__, 1, 2));
+
+__END_DECLS
+
+#endif /* _SYS_RANDOM_H */

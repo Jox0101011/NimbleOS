@@ -1,46 +1,61 @@
-#define O_CREAT        0100
-#define O_EXCL         0200
-#define O_NOCTTY       0400
-#define O_TRUNC       01000
-#define O_APPEND      02000
-#define O_NONBLOCK    04000
-#define O_DSYNC      010000
-#define O_SYNC     04010000
-#define O_RSYNC    04010000
-#define O_DIRECTORY 0200000
-#define O_NOFOLLOW  0400000
-#define O_CLOEXEC  02000000
+/* O_*, F_*, FD_* bit values for Linux/x86.
+   Copyright (C) 2001-2025 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
-#define O_ASYNC      020000
-#define O_DIRECT     040000
-#define O_LARGEFILE 0100000
-#define O_NOATIME  01000000
-#define O_PATH    010000000
-#define O_TMPFILE 020200000
-#define O_NDELAY O_NONBLOCK
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
-#define F_DUPFD  0
-#define F_GETFD  1
-#define F_SETFD  2
-#define F_GETFL  3
-#define F_SETFL  4
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
 
-#define F_SETOWN 8
-#define F_GETOWN 9
-#define F_SETSIG 10
-#define F_GETSIG 11
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, see
+   <https://www.gnu.org/licenses/>.  */
 
-#if __LONG_MAX == 0x7fffffffL
-#define F_GETLK 12
-#define F_SETLK 13
-#define F_SETLKW 14
-#else
-#define F_GETLK 5
-#define F_SETLK 6
-#define F_SETLKW 7
+#ifndef _FCNTL_H
+# error "Never use <bits/fcntl.h> directly; include <fcntl.h> instead."
 #endif
 
-#define F_SETOWN_EX 15
-#define F_GETOWN_EX 16
+#ifdef __x86_64__
+# define __O_LARGEFILE	0
+#endif
 
-#define F_GETOWNER_UIDS 17
+#ifdef __x86_64__
+/* Not necessary, we always have 64-bit offsets.  */
+# define F_GETLK64	5	/* Get record locking info.  */
+# define F_SETLK64	6	/* Set record locking info (non-blocking).  */
+# define F_SETLKW64	7	/* Set record locking info (blocking).	*/
+#endif
+
+
+struct flock
+  {
+    short int l_type;	/* Type of lock: F_RDLCK, F_WRLCK, or F_UNLCK.	*/
+    short int l_whence;	/* Where `l_start' is relative to (like `lseek').  */
+#ifndef __USE_FILE_OFFSET64
+    __off_t l_start;	/* Offset where the lock begins.  */
+    __off_t l_len;	/* Size of the locked area; zero means until EOF.  */
+#else
+    __off64_t l_start;	/* Offset where the lock begins.  */
+    __off64_t l_len;	/* Size of the locked area; zero means until EOF.  */
+#endif
+    __pid_t l_pid;	/* Process holding the lock.  */
+  };
+
+#ifdef __USE_LARGEFILE64
+struct flock64
+  {
+    short int l_type;	/* Type of lock: F_RDLCK, F_WRLCK, or F_UNLCK.	*/
+    short int l_whence;	/* Where `l_start' is relative to (like `lseek').  */
+    __off64_t l_start;	/* Offset where the lock begins.  */
+    __off64_t l_len;	/* Size of the locked area; zero means until EOF.  */
+    __pid_t l_pid;	/* Process holding the lock.  */
+  };
+#endif
+
+/* Include generic Linux declarations.  */
+#include <bits/fcntl-linux.h>

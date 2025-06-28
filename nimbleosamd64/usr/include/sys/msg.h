@@ -1,53 +1,92 @@
+/* Copyright (C) 1995-2025 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, see
+   <https://www.gnu.org/licenses/>.  */
+
 #ifndef _SYS_MSG_H
 #define _SYS_MSG_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <features.h>
 
+#define __need_size_t
+#include <stddef.h>
+
+/* Get common definition of System V style IPC.  */
 #include <sys/ipc.h>
 
-#define __NEED_pid_t
-#define __NEED_key_t
-#define __NEED_time_t
-#define __NEED_size_t
-#define __NEED_ssize_t
+/* Get system dependent definition of `struct msqid_ds' and more.  */
+#include <bits/msq.h>
 
-#include <bits/alltypes.h>
+/* Define types required by the standard.  */
+#include <bits/types/time_t.h>
 
-typedef unsigned long msgqnum_t;
-typedef unsigned long msglen_t;
-
-#include <bits/msg.h>
-
-#define __msg_cbytes msg_cbytes
-
-#define MSG_NOERROR 010000
-#define MSG_EXCEPT  020000
-
-#define MSG_STAT (11 | (IPC_STAT & 0x100))
-#define MSG_INFO 12
-#define MSG_STAT_ANY (13 | (IPC_STAT & 0x100))
-
-struct msginfo {
-	int msgpool, msgmap, msgmax, msgmnb, msgmni, msgssz, msgtql;
-	unsigned short msgseg;
-};
-
-int msgctl (int, int, struct msqid_ds *);
-int msgget (key_t, int);
-ssize_t msgrcv (int, void *, size_t, long, int);
-int msgsnd (int, const void *, size_t, int);
-
-#if defined(_GNU_SOURCE) || defined(_BSD_SOURCE)
-struct msgbuf {
-	long mtype;
-	char mtext[1];
-};
+#ifndef __pid_t_defined
+typedef __pid_t pid_t;
+# define __pid_t_defined
 #endif
 
-#ifdef __cplusplus
-}
+#ifndef __ssize_t_defined
+typedef __ssize_t ssize_t;
+# define __ssize_t_defined
 #endif
 
+/* The following System V style IPC functions implement a message queue
+   system.  The definition is found in XPG2.  */
+
+#ifdef __USE_GNU
+/* Template for struct to be used as argument for `msgsnd' and `msgrcv'.  */
+struct msgbuf
+  {
+    __syscall_slong_t mtype;	/* type of received/sent message */
+    char mtext[1];		/* text of the message */
+  };
 #endif
+
+
+__BEGIN_DECLS
+
+/* Message queue control operation.  */
+#ifndef __USE_TIME64_REDIRECTS
+extern int msgctl (int __msqid, int __cmd, struct msqid_ds *__buf) __THROW;
+#else
+# ifdef __REDIRECT_NTH
+extern int __REDIRECT_NTH (msgctl,
+                           (int __msqid, int __cmd, struct msqid_ds *__buf),
+                           __msgctl64);
+# else
+#  define msgctl __msgctl64
+# endif
+#endif
+
+/* Get messages queue.  */
+extern int msgget (key_t __key, int __msgflg) __THROW;
+
+/* Receive message from message queue.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern ssize_t msgrcv (int __msqid, void *__msgp, size_t __msgsz,
+		       long int __msgtyp, int __msgflg);
+
+/* Send message to message queue.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern int msgsnd (int __msqid, const void *__msgp, size_t __msgsz,
+		   int __msgflg);
+
+__END_DECLS
+
+#endif /* sys/msg.h */

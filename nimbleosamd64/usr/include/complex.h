@@ -1,133 +1,250 @@
+/* Copyright (C) 1997-2025 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, see
+   <https://www.gnu.org/licenses/>.  */
+
+/*
+ *	ISO C99:  7.3 Complex arithmetic	<complex.h>
+ */
+
 #ifndef _COMPLEX_H
-#define _COMPLEX_H
+#define _COMPLEX_H	1
 
-#ifdef __cplusplus
-extern "C" {
+#define __GLIBC_INTERNAL_STARTING_HEADER_IMPLEMENTATION
+#include <bits/libc-header-start.h>
+
+/* Get general and ISO C99 specific information.  */
+#include <bits/mathdef.h>
+
+/* Gather machine-dependent _FloatN type support.  */
+#include <bits/floatn.h>
+
+__BEGIN_DECLS
+
+/* We might need to add support for more compilers here.  But since ISO
+   C99 is out hopefully all maintained compilers will soon provide the data
+   types `float complex' and `double complex'.  */
+#if __GNUC_PREREQ (2, 7) && !__GNUC_PREREQ (2, 97)
+# define _Complex __complex__
 #endif
 
-#define complex _Complex
-#ifdef __GNUC__
-#define _Complex_I (__extension__ (0.0f+1.0fi))
-#else
-#define _Complex_I (0.0f+1.0fi)
-#endif
+#define complex		_Complex
+
+/* Narrowest imaginary unit.  This depends on the floating-point
+   evaluation method.
+   XXX This probably has to go into a gcc related file.  */
+#define _Complex_I	(__extension__ 1.0iF)
+
+/* Another more descriptive name is `I'.
+   XXX Once we have the imaginary support switch this to _Imaginary_I.  */
+#undef I
 #define I _Complex_I
 
-double complex cacos(double complex);
-float complex cacosf(float complex);
-long double complex cacosl(long double complex);
-
-double complex casin(double complex);
-float complex casinf(float complex);
-long double complex casinl(long double complex);
-
-double complex catan(double complex);
-float complex catanf(float complex);
-long double complex catanl(long double complex);
-
-double complex ccos(double complex);
-float complex ccosf(float complex);
-long double complex ccosl(long double complex);
-
-double complex csin(double complex);
-float complex csinf(float complex);
-long double complex csinl(long double complex);
-
-double complex ctan(double complex);
-float complex ctanf(float complex);
-long double complex ctanl(long double complex);
-
-double complex cacosh(double complex);
-float complex cacoshf(float complex);
-long double complex cacoshl(long double complex);
-
-double complex casinh(double complex);
-float complex casinhf(float complex);
-long double complex casinhl(long double complex);
-
-double complex catanh(double complex);
-float complex catanhf(float complex);
-long double complex catanhl(long double complex);
-
-double complex ccosh(double complex);
-float complex ccoshf(float complex);
-long double complex ccoshl(long double complex);
-
-double complex csinh(double complex);
-float complex csinhf(float complex);
-long double complex csinhl(long double complex);
-
-double complex ctanh(double complex);
-float complex ctanhf(float complex);
-long double complex ctanhl(long double complex);
-
-double complex cexp(double complex);
-float complex cexpf(float complex);
-long double complex cexpl(long double complex);
-
-double complex clog(double complex);
-float complex clogf(float complex);
-long double complex clogl(long double complex);
-
-double cabs(double complex);
-float cabsf(float complex);
-long double cabsl(long double complex);
-
-double complex cpow(double complex, double complex);
-float complex cpowf(float complex, float complex);
-long double complex cpowl(long double complex, long double complex);
-
-double complex csqrt(double complex);
-float complex csqrtf(float complex);
-long double complex csqrtl(long double complex);
-
-double carg(double complex);
-float cargf(float complex);
-long double cargl(long double complex);
-
-double cimag(double complex);
-float cimagf(float complex);
-long double cimagl(long double complex);
-
-double complex conj(double complex);
-float complex conjf(float complex);
-long double complex conjl(long double complex);
-
-double complex cproj(double complex);
-float complex cprojf(float complex);
-long double complex cprojl(long double complex);
-
-double creal(double complex);
-float crealf(float complex);
-long double creall(long double complex);
-
-#ifndef __cplusplus
-#define __CIMAG(x, t) \
-	(+(union { _Complex t __z; t __xy[2]; }){(_Complex t)(x)}.__xy[1])
-
-#define creal(x) ((double)(x))
-#define crealf(x) ((float)(x))
-#define creall(x) ((long double)(x))
-
-#define cimag(x) __CIMAG(x, double)
-#define cimagf(x) __CIMAG(x, float)
-#define cimagl(x) __CIMAG(x, long double)
+#if defined __USE_ISOC11 \
+    && (__GNUC_PREREQ (4, 7) || __glibc_clang_prereq (12, 0))
+/* Macros to expand into expression of specified complex type.  */
+# define CMPLX(x, y) __builtin_complex ((double) (x), (double) (y))
+# define CMPLXF(x, y) __builtin_complex ((float) (x), (float) (y))
+# define CMPLXL(x, y) __builtin_complex ((long double) (x), (long double) (y))
 #endif
 
-#if __STDC_VERSION__ >= 201112L
-#if defined(_Imaginary_I)
-#define __CMPLX(x, y, t) ((t)(x) + _Imaginary_I*(t)(y))
-#elif defined(__clang__)
-#define __CMPLX(x, y, t) (+(_Complex t){ (t)(x), (t)(y) })
-#else
-#define __CMPLX(x, y, t) (__builtin_complex((t)(x), (t)(y)))
-#endif
-#define CMPLX(x, y) __CMPLX(x, y, double)
-#define CMPLXF(x, y) __CMPLX(x, y, float)
-#define CMPLXL(x, y) __CMPLX(x, y, long double)
+#if __HAVE_FLOAT16 && __GLIBC_USE (IEC_60559_TYPES_EXT)
+# define CMPLXF16(x, y) __builtin_complex ((_Float16) (x), (_Float16) (y))
 #endif
 
-#ifdef __cplusplus
-}
+#if __HAVE_FLOAT32 && __GLIBC_USE (IEC_60559_TYPES_EXT)
+# define CMPLXF32(x, y) __builtin_complex ((_Float32) (x), (_Float32) (y))
 #endif
+
+#if __HAVE_FLOAT64 && __GLIBC_USE (IEC_60559_TYPES_EXT)
+# define CMPLXF64(x, y) __builtin_complex ((_Float64) (x), (_Float64) (y))
 #endif
+
+#if __HAVE_FLOAT128 && __GLIBC_USE (IEC_60559_TYPES_EXT)
+# define CMPLXF128(x, y) __builtin_complex ((_Float128) (x), (_Float128) (y))
+#endif
+
+#if __HAVE_FLOAT32X && __GLIBC_USE (IEC_60559_TYPES_EXT)
+# define CMPLXF32X(x, y) __builtin_complex ((_Float32x) (x), (_Float32x) (y))
+#endif
+
+#if __HAVE_FLOAT64X && __GLIBC_USE (IEC_60559_TYPES_EXT)
+# define CMPLXF64X(x, y) __builtin_complex ((_Float64x) (x), (_Float64x) (y))
+#endif
+
+#if __HAVE_FLOAT128X && __GLIBC_USE (IEC_60559_TYPES_EXT)
+# define CMPLXF128X(x, y)					\
+  __builtin_complex ((_Float128x) (x), (_Float128x) (y))
+#endif
+
+/* The file <bits/cmathcalls.h> contains the prototypes for all the
+   actual math functions.  These macros are used for those prototypes,
+   so we can easily declare each function as both `name' and `__name',
+   and can declare the float versions `namef' and `__namef'.  */
+
+#define __MATHCALL(function, args)	\
+  __MATHDECL (_Mdouble_complex_,function, args)
+#define __MATHDECL_IMPL(type, function, args) \
+  __MATHDECL_1(type, function, args); \
+  __MATHDECL_1(type, __CONCAT(__,function), args)
+#define __MATHDECL(type, function, args) \
+  __MATHDECL_IMPL(type, function, args)
+#define __MATHDECL_1_IMPL(type, function, args) \
+  extern type __MATH_PRECNAME(function) args __THROW
+#define __MATHDECL_1(type, function, args) \
+  __MATHDECL_1_IMPL(type, function, args)
+
+#define _Mdouble_ 		double
+#define __MATH_PRECNAME(name)	name
+#include <bits/cmathcalls.h>
+#undef	_Mdouble_
+#undef	__MATH_PRECNAME
+
+/* Now the float versions.  */
+#define _Mdouble_ 		float
+#define __MATH_PRECNAME(name)	name##f
+#include <bits/cmathcalls.h>
+#undef	_Mdouble_
+#undef	__MATH_PRECNAME
+
+/* And the long double versions.  It is non-critical to define them
+   here unconditionally since `long double' is required in ISO C99.  */
+#if !(defined __NO_LONG_DOUBLE_MATH && defined _LIBC)	\
+    || defined __LDBL_COMPAT
+# ifdef __LDBL_COMPAT
+#  undef __MATHDECL_1
+#  define __MATHDECL_1(type, function, args) \
+  extern type __REDIRECT_NTH(__MATH_PRECNAME(function), args, function)
+# elif __LDOUBLE_REDIRECTS_TO_FLOAT128_ABI == 1
+#  undef __MATHDECL_1
+#  undef __MATHDECL
+#  define __REDIR_TO(function) \
+  __ ## function ## ieee128
+#  define __MATHDECL_1(type, function, alias, args) \
+  extern type __REDIRECT_NTH(__MATH_PRECNAME(function), args, alias)
+#define __MATHDECL(type, function, args) \
+  __MATHDECL_1(type, function, __REDIR_TO(function), args); \
+  __MATHDECL_1(type, __CONCAT(__,function), __REDIR_TO(function), args)
+# endif
+
+# define _Mdouble_ 		long double
+# define __MATH_PRECNAME(name)	name##l
+# include <bits/cmathcalls.h>
+# if defined __LDBL_COMPAT \
+     || __LDOUBLE_REDIRECTS_TO_FLOAT128_ABI == 1
+#  undef __REDIR_TO
+#  undef __MATHDECL_1
+#  undef __MATHDECL
+#define __MATHDECL(type, function, args) \
+  __MATHDECL_IMPL(type, function, args)
+#  define __MATHDECL_1(type, function, args) \
+  __MATHDECL_1_IMPL(type, function, args)
+# endif
+#endif
+#undef	_Mdouble_
+#undef	__MATH_PRECNAME
+
+#if (__HAVE_DISTINCT_FLOAT16 || (__HAVE_FLOAT16 && !defined _LIBC)) \
+     && __GLIBC_USE (IEC_60559_TYPES_EXT)
+# undef _Mdouble_complex_
+# define _Mdouble_complex_	__CFLOAT16
+# define _Mdouble_		_Float16
+# define __MATH_PRECNAME(name)	name##f16
+# include <bits/cmathcalls.h>
+# undef _Mdouble_
+# undef __MATH_PRECNAME
+# undef _Mdouble_complex_
+#endif
+
+#if (__HAVE_DISTINCT_FLOAT32 || (__HAVE_FLOAT32 && !defined _LIBC)) \
+     && __GLIBC_USE (IEC_60559_TYPES_EXT)
+# undef _Mdouble_complex_
+# define _Mdouble_complex_	__CFLOAT32
+# define _Mdouble_		_Float32
+# define __MATH_PRECNAME(name)	name##f32
+# include <bits/cmathcalls.h>
+# undef _Mdouble_
+# undef __MATH_PRECNAME
+# undef _Mdouble_complex_
+#endif
+
+#if (__HAVE_DISTINCT_FLOAT64 || (__HAVE_FLOAT64 && !defined _LIBC)) \
+     && __GLIBC_USE (IEC_60559_TYPES_EXT)
+# undef _Mdouble_complex_
+# define _Mdouble_complex_	__CFLOAT64
+# define _Mdouble_		_Float64
+# define __MATH_PRECNAME(name)	name##f64
+# include <bits/cmathcalls.h>
+# undef _Mdouble_
+# undef __MATH_PRECNAME
+# undef _Mdouble_complex_
+#endif
+
+#if (__HAVE_DISTINCT_FLOAT128 || (__HAVE_FLOAT128 && !defined _LIBC)) \
+     && __GLIBC_USE (IEC_60559_TYPES_EXT)
+# undef _Mdouble_complex_
+# define _Mdouble_complex_	__CFLOAT128
+# define _Mdouble_		_Float128
+# define __MATH_PRECNAME(name)	name##f128
+# include <bits/cmathcalls.h>
+# undef _Mdouble_
+# undef __MATH_PRECNAME
+# undef _Mdouble_complex_
+#endif
+
+#if (__HAVE_DISTINCT_FLOAT32X || (__HAVE_FLOAT32X && !defined _LIBC)) \
+     && __GLIBC_USE (IEC_60559_TYPES_EXT)
+# undef _Mdouble_complex_
+# define _Mdouble_complex_	__CFLOAT32X
+# define _Mdouble_		_Float32x
+# define __MATH_PRECNAME(name)	name##f32x
+# include <bits/cmathcalls.h>
+# undef _Mdouble_
+# undef __MATH_PRECNAME
+# undef _Mdouble_complex_
+#endif
+
+#if (__HAVE_DISTINCT_FLOAT64X || (__HAVE_FLOAT64X && !defined _LIBC)) \
+     && __GLIBC_USE (IEC_60559_TYPES_EXT)
+# undef _Mdouble_complex_
+# define _Mdouble_complex_	__CFLOAT64X
+# define _Mdouble_		_Float64x
+# define __MATH_PRECNAME(name)	name##f64x
+# include <bits/cmathcalls.h>
+# undef _Mdouble_
+# undef __MATH_PRECNAME
+# undef _Mdouble_complex_
+#endif
+
+#if (__HAVE_DISTINCT_FLOAT128X || (__HAVE_FLOAT128X && !defined _LIBC)) \
+     && __GLIBC_USE (IEC_60559_TYPES_EXT)
+# undef _Mdouble_complex_
+# define _Mdouble_complex_	__CFLOAT128X
+# define _Mdouble_		_Float128x
+# define __MATH_PRECNAME(name)	name##f128x
+# include <bits/cmathcalls.h>
+# undef _Mdouble_
+# undef __MATH_PRECNAME
+# undef _Mdouble_complex_
+#endif
+
+#undef	__MATHDECL_1_IMPL
+#undef	__MATHDECL_1
+#undef	__MATHDECL
+#undef	__MATHCALL
+
+__END_DECLS
+
+#endif /* complex.h */

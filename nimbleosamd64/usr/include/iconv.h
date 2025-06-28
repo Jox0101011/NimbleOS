@@ -1,24 +1,56 @@
-#ifndef _ICONV_H
-#define _ICONV_H
+/* Copyright (C) 1997-2025 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, see
+   <https://www.gnu.org/licenses/>.  */
+
+#ifndef _ICONV_H
+#define _ICONV_H	1
 
 #include <features.h>
+#define __need_size_t
+#include <stddef.h>
 
-#define __NEED_size_t
 
-#include <bits/alltypes.h>
+__BEGIN_DECLS
 
+/* Identifier for conversion method from one codeset to another.  */
 typedef void *iconv_t;
 
-iconv_t iconv_open(const char *, const char *);
-size_t iconv(iconv_t, char **__restrict, size_t *__restrict, char **__restrict, size_t *__restrict);
-int iconv_close(iconv_t);
 
-#ifdef __cplusplus
-}
-#endif
+/* Free resources allocated for descriptor CD for code conversion.
 
-#endif
+   This function is a possible cancellation point and therefore not
+   marked with __THROW.  */
+extern int iconv_close (iconv_t __cd);
+
+/* Allocate descriptor for code conversion from codeset FROMCODE to
+   codeset TOCODE.
+
+   This function is a possible cancellation point and therefore not
+   marked with __THROW.  */
+extern iconv_t iconv_open (const char *__tocode, const char *__fromcode)
+	__attribute_malloc__ __attr_dealloc (iconv_close, 1);
+
+/* Convert at most *INBYTESLEFT bytes from *INBUF according to the
+   code conversion algorithm specified by CD and place up to
+   *OUTBYTESLEFT bytes in buffer at *OUTBUF.  */
+extern size_t iconv (iconv_t __cd, char **__restrict __inbuf,
+		     size_t *__restrict __inbytesleft,
+		     char **__restrict __outbuf,
+		     size_t *__restrict __outbytesleft);
+
+__END_DECLS
+
+#endif /* iconv.h */

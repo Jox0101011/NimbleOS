@@ -1,415 +1,348 @@
+/* Declarations of socket constants, types, and functions.
+   Copyright (C) 1991-2025 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, see
+   <https://www.gnu.org/licenses/>.  */
+
 #ifndef	_SYS_SOCKET_H
-#define	_SYS_SOCKET_H
-#ifdef __cplusplus
-extern "C" {
-#endif
+#define	_SYS_SOCKET_H	1
 
 #include <features.h>
 
-#define __NEED_socklen_t
-#define __NEED_sa_family_t
-#define __NEED_size_t
-#define __NEED_ssize_t
-#define __NEED_uid_t
-#define __NEED_pid_t
-#define __NEED_gid_t
-#define __NEED_struct_iovec
+__BEGIN_DECLS
 
-#include <bits/alltypes.h>
+#include <bits/types/struct_iovec.h>
+#define	__need_size_t
+#include <stddef.h>
 
+/* This operating system-specific header file defines the SOCK_*, PF_*,
+   AF_*, MSG_*, SOL_*, and SO_* constants, and the `struct sockaddr',
+   `struct msghdr', and `struct linger' types.  */
 #include <bits/socket.h>
 
-struct msghdr {
-	void *msg_name;
-	socklen_t msg_namelen;
-	struct iovec *msg_iov;
-#if __LONG_MAX > 0x7fffffff && __BYTE_ORDER == __BIG_ENDIAN
-	int __pad1;
+#ifdef __USE_MISC
+# include <bits/types/struct_osockaddr.h>
 #endif
-	int msg_iovlen;
-#if __LONG_MAX > 0x7fffffff && __BYTE_ORDER == __LITTLE_ENDIAN
-	int __pad1;
-#endif
-	void *msg_control;
-#if __LONG_MAX > 0x7fffffff && __BYTE_ORDER == __BIG_ENDIAN
-	int __pad2;
-#endif
-	socklen_t msg_controllen;
-#if __LONG_MAX > 0x7fffffff && __BYTE_ORDER == __LITTLE_ENDIAN
-	int __pad2;
-#endif
-	int msg_flags;
+
+/* The following constants should be used for the second parameter of
+   `shutdown'.  */
+enum
+{
+  SHUT_RD = 0,		/* No more receptions.  */
+#define SHUT_RD		SHUT_RD
+  SHUT_WR,		/* No more transmissions.  */
+#define SHUT_WR		SHUT_WR
+  SHUT_RDWR		/* No more receptions or transmissions.  */
+#define SHUT_RDWR	SHUT_RDWR
 };
 
-struct cmsghdr {
-#if __LONG_MAX > 0x7fffffff && __BYTE_ORDER == __BIG_ENDIAN
-	int __pad1;
-#endif
-	socklen_t cmsg_len;
-#if __LONG_MAX > 0x7fffffff && __BYTE_ORDER == __LITTLE_ENDIAN
-	int __pad1;
-#endif
-	int cmsg_level;
-	int cmsg_type;
-};
+/* This is the type we use for generic socket address arguments.
 
-#ifdef _GNU_SOURCE
-struct ucred {
-	pid_t pid;
-	uid_t uid;
-	gid_t gid;
-};
-
-struct mmsghdr {
-	struct msghdr msg_hdr;
-	unsigned int  msg_len;
-};
-
-struct timespec;
-
-int sendmmsg (int, struct mmsghdr *, unsigned int, unsigned int);
-int recvmmsg (int, struct mmsghdr *, unsigned int, unsigned int, struct timespec *);
-#endif
-
-struct linger {
-	int l_onoff;
-	int l_linger;
-};
-
-#define SHUT_RD 0
-#define SHUT_WR 1
-#define SHUT_RDWR 2
-
-#ifndef SOCK_STREAM
-#define SOCK_STREAM    1
-#define SOCK_DGRAM     2
-#endif
-
-#define SOCK_RAW       3
-#define SOCK_RDM       4
-#define SOCK_SEQPACKET 5
-#define SOCK_DCCP      6
-#define SOCK_PACKET    10
-
-#ifndef SOCK_CLOEXEC
-#define SOCK_CLOEXEC   02000000
-#define SOCK_NONBLOCK  04000
-#endif
-
-#define PF_UNSPEC       0
-#define PF_LOCAL        1
-#define PF_UNIX         PF_LOCAL
-#define PF_FILE         PF_LOCAL
-#define PF_INET         2
-#define PF_AX25         3
-#define PF_IPX          4
-#define PF_APPLETALK    5
-#define PF_NETROM       6
-#define PF_BRIDGE       7
-#define PF_ATMPVC       8
-#define PF_X25          9
-#define PF_INET6        10
-#define PF_ROSE         11
-#define PF_DECnet       12
-#define PF_NETBEUI      13
-#define PF_SECURITY     14
-#define PF_KEY          15
-#define PF_NETLINK      16
-#define PF_ROUTE        PF_NETLINK
-#define PF_PACKET       17
-#define PF_ASH          18
-#define PF_ECONET       19
-#define PF_ATMSVC       20
-#define PF_RDS          21
-#define PF_SNA          22
-#define PF_IRDA         23
-#define PF_PPPOX        24
-#define PF_WANPIPE      25
-#define PF_LLC          26
-#define PF_IB           27
-#define PF_MPLS         28
-#define PF_CAN          29
-#define PF_TIPC         30
-#define PF_BLUETOOTH    31
-#define PF_IUCV         32
-#define PF_RXRPC        33
-#define PF_ISDN         34
-#define PF_PHONET       35
-#define PF_IEEE802154   36
-#define PF_CAIF         37
-#define PF_ALG          38
-#define PF_NFC          39
-#define PF_VSOCK        40
-#define PF_KCM          41
-#define PF_QIPCRTR      42
-#define PF_SMC          43
-#define PF_XDP          44
-#define PF_MAX          45
-
-#define AF_UNSPEC       PF_UNSPEC
-#define AF_LOCAL        PF_LOCAL
-#define AF_UNIX         AF_LOCAL
-#define AF_FILE         AF_LOCAL
-#define AF_INET         PF_INET
-#define AF_AX25         PF_AX25
-#define AF_IPX          PF_IPX
-#define AF_APPLETALK    PF_APPLETALK
-#define AF_NETROM       PF_NETROM
-#define AF_BRIDGE       PF_BRIDGE
-#define AF_ATMPVC       PF_ATMPVC
-#define AF_X25          PF_X25
-#define AF_INET6        PF_INET6
-#define AF_ROSE         PF_ROSE
-#define AF_DECnet       PF_DECnet
-#define AF_NETBEUI      PF_NETBEUI
-#define AF_SECURITY     PF_SECURITY
-#define AF_KEY          PF_KEY
-#define AF_NETLINK      PF_NETLINK
-#define AF_ROUTE        PF_ROUTE
-#define AF_PACKET       PF_PACKET
-#define AF_ASH          PF_ASH
-#define AF_ECONET       PF_ECONET
-#define AF_ATMSVC       PF_ATMSVC
-#define AF_RDS          PF_RDS
-#define AF_SNA          PF_SNA
-#define AF_IRDA         PF_IRDA
-#define AF_PPPOX        PF_PPPOX
-#define AF_WANPIPE      PF_WANPIPE
-#define AF_LLC          PF_LLC
-#define AF_IB           PF_IB
-#define AF_MPLS         PF_MPLS
-#define AF_CAN          PF_CAN
-#define AF_TIPC         PF_TIPC
-#define AF_BLUETOOTH    PF_BLUETOOTH
-#define AF_IUCV         PF_IUCV
-#define AF_RXRPC        PF_RXRPC
-#define AF_ISDN         PF_ISDN
-#define AF_PHONET       PF_PHONET
-#define AF_IEEE802154   PF_IEEE802154
-#define AF_CAIF         PF_CAIF
-#define AF_ALG          PF_ALG
-#define AF_NFC          PF_NFC
-#define AF_VSOCK        PF_VSOCK
-#define AF_KCM          PF_KCM
-#define AF_QIPCRTR      PF_QIPCRTR
-#define AF_SMC          PF_SMC
-#define AF_XDP          PF_XDP
-#define AF_MAX          PF_MAX
-
-#ifndef SO_DEBUG
-#define SO_DEBUG        1
-#define SO_REUSEADDR    2
-#define SO_TYPE         3
-#define SO_ERROR        4
-#define SO_DONTROUTE    5
-#define SO_BROADCAST    6
-#define SO_SNDBUF       7
-#define SO_RCVBUF       8
-#define SO_KEEPALIVE    9
-#define SO_OOBINLINE    10
-#define SO_NO_CHECK     11
-#define SO_PRIORITY     12
-#define SO_LINGER       13
-#define SO_BSDCOMPAT    14
-#define SO_REUSEPORT    15
-#define SO_PASSCRED     16
-#define SO_PEERCRED     17
-#define SO_RCVLOWAT     18
-#define SO_SNDLOWAT     19
-#define SO_ACCEPTCONN   30
-#define SO_PEERSEC      31
-#define SO_SNDBUFFORCE  32
-#define SO_RCVBUFFORCE  33
-#define SO_PROTOCOL     38
-#define SO_DOMAIN       39
-#endif
-
-#ifndef SO_RCVTIMEO
-#if __LONG_MAX == 0x7fffffff
-#define SO_RCVTIMEO     66
-#define SO_SNDTIMEO     67
+   With GCC 2.7 and later, the funky union causes redeclarations or
+   uses with any of the listed types to be allowed without complaint.
+   G++ 2.7 does not support transparent unions so there we want the
+   old-style declaration, too.  */
+#if defined __cplusplus || !__GNUC_PREREQ (2, 7) || !defined __USE_GNU
+# define __SOCKADDR_ARG		struct sockaddr *__restrict
+# define __CONST_SOCKADDR_ARG	const struct sockaddr *
 #else
-#define SO_RCVTIMEO     20
-#define SO_SNDTIMEO     21
-#endif
+/* Add more `struct sockaddr_AF' types here as necessary.
+   These are all the ones I found on NetBSD and Linux.  */
+# define __SOCKADDR_ALLTYPES \
+  __SOCKADDR_ONETYPE (sockaddr) \
+  __SOCKADDR_ONETYPE (sockaddr_at) \
+  __SOCKADDR_ONETYPE (sockaddr_ax25) \
+  __SOCKADDR_ONETYPE (sockaddr_dl) \
+  __SOCKADDR_ONETYPE (sockaddr_eon) \
+  __SOCKADDR_ONETYPE (sockaddr_in) \
+  __SOCKADDR_ONETYPE (sockaddr_in6) \
+  __SOCKADDR_ONETYPE (sockaddr_inarp) \
+  __SOCKADDR_ONETYPE (sockaddr_ipx) \
+  __SOCKADDR_ONETYPE (sockaddr_iso) \
+  __SOCKADDR_ONETYPE (sockaddr_ns) \
+  __SOCKADDR_ONETYPE (sockaddr_un) \
+  __SOCKADDR_ONETYPE (sockaddr_x25)
+
+# define __SOCKADDR_ONETYPE(type) struct type *__restrict __##type##__;
+typedef union { __SOCKADDR_ALLTYPES
+	      } __SOCKADDR_ARG __attribute__ ((__transparent_union__));
+# undef __SOCKADDR_ONETYPE
+# define __SOCKADDR_ONETYPE(type) const struct type *__restrict __##type##__;
+typedef union { __SOCKADDR_ALLTYPES
+	      } __CONST_SOCKADDR_ARG __attribute__ ((__transparent_union__));
+# undef __SOCKADDR_ONETYPE
 #endif
 
-#ifndef SO_TIMESTAMP
-#if __LONG_MAX == 0x7fffffff
-#define SO_TIMESTAMP    63
-#define SO_TIMESTAMPNS  64
-#define SO_TIMESTAMPING 65
+#ifdef __USE_GNU
+/* For `recvmmsg' and `sendmmsg'.  */
+struct mmsghdr
+  {
+    struct msghdr msg_hdr;	/* Actual message header.  */
+    unsigned int msg_len;	/* Number of received or sent bytes for the
+				   entry.  */
+  };
+#endif
+
+
+/* Create a new socket of type TYPE in domain DOMAIN, using
+   protocol PROTOCOL.  If PROTOCOL is zero, one is chosen automatically.
+   Returns a file descriptor for the new socket, or -1 for errors.  */
+extern int socket (int __domain, int __type, int __protocol) __THROW;
+
+/* Create two new sockets, of type TYPE in domain DOMAIN and using
+   protocol PROTOCOL, which are connected to each other, and put file
+   descriptors for them in FDS[0] and FDS[1].  If PROTOCOL is zero,
+   one will be chosen automatically.  Returns 0 on success, -1 for errors.  */
+extern int socketpair (int __domain, int __type, int __protocol,
+		       int __fds[2]) __THROW;
+
+/* Give the socket FD the local address ADDR (which is LEN bytes long).  */
+extern int bind (int __fd, __CONST_SOCKADDR_ARG __addr, socklen_t __len)
+     __THROW;
+
+/* Put the local address of FD into *ADDR and its length in *LEN.  */
+extern int getsockname (int __fd, __SOCKADDR_ARG __addr,
+			socklen_t *__restrict __len) __THROW;
+
+/* Open a connection on socket FD to peer at ADDR (which LEN bytes long).
+   For connectionless socket types, just set the default address to send to
+   and the only address from which to accept transmissions.
+   Return 0 on success, -1 for errors.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern int connect (int __fd, __CONST_SOCKADDR_ARG __addr, socklen_t __len);
+
+/* Put the address of the peer connected to socket FD into *ADDR
+   (which is *LEN bytes long), and its actual length into *LEN.  */
+extern int getpeername (int __fd, __SOCKADDR_ARG __addr,
+			socklen_t *__restrict __len) __THROW;
+
+
+/* Send N bytes of BUF to socket FD.  Returns the number sent or -1.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern ssize_t send (int __fd, const void *__buf, size_t __n, int __flags);
+
+/* Read N bytes into BUF from socket FD.
+   Returns the number read or -1 for errors.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern ssize_t recv (int __fd, void *__buf, size_t __n, int __flags);
+
+/* Send N bytes of BUF on socket FD to peer at address ADDR (which is
+   ADDR_LEN bytes long).  Returns the number sent, or -1 for errors.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern ssize_t sendto (int __fd, const void *__buf, size_t __n,
+		       int __flags, __CONST_SOCKADDR_ARG __addr,
+		       socklen_t __addr_len);
+
+/* Read N bytes into BUF through socket FD.
+   If ADDR is not NULL, fill in *ADDR_LEN bytes of it with the address of
+   the sender, and store the actual size of the address in *ADDR_LEN.
+   Returns the number of bytes read or -1 for errors.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern ssize_t recvfrom (int __fd, void *__restrict __buf, size_t __n,
+			 int __flags, __SOCKADDR_ARG __addr,
+			 socklen_t *__restrict __addr_len);
+
+
+/* Send a message described MESSAGE on socket FD.
+   Returns the number of bytes sent, or -1 for errors.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+#ifndef __USE_TIME64_REDIRECTS
+extern ssize_t sendmsg (int __fd, const struct msghdr *__message,
+			int __flags);
 #else
-#define SO_TIMESTAMP    29
-#define SO_TIMESTAMPNS  35
-#define SO_TIMESTAMPING 37
-#endif
-#endif
-
-#define SO_SECURITY_AUTHENTICATION              22
-#define SO_SECURITY_ENCRYPTION_TRANSPORT        23
-#define SO_SECURITY_ENCRYPTION_NETWORK          24
-
-#define SO_BINDTODEVICE 25
-
-#define SO_ATTACH_FILTER        26
-#define SO_DETACH_FILTER        27
-#define SO_GET_FILTER           SO_ATTACH_FILTER
-
-#define SO_PEERNAME             28
-#define SCM_TIMESTAMP           SO_TIMESTAMP
-#define SO_PASSSEC              34
-#define SCM_TIMESTAMPNS         SO_TIMESTAMPNS
-#define SO_MARK                 36
-#define SCM_TIMESTAMPING        SO_TIMESTAMPING
-#define SO_RXQ_OVFL             40
-#define SO_WIFI_STATUS          41
-#define SCM_WIFI_STATUS         SO_WIFI_STATUS
-#define SO_PEEK_OFF             42
-#define SO_NOFCS                43
-#define SO_LOCK_FILTER          44
-#define SO_SELECT_ERR_QUEUE     45
-#define SO_BUSY_POLL            46
-#define SO_MAX_PACING_RATE      47
-#define SO_BPF_EXTENSIONS       48
-#define SO_INCOMING_CPU         49
-#define SO_ATTACH_BPF           50
-#define SO_DETACH_BPF           SO_DETACH_FILTER
-#define SO_ATTACH_REUSEPORT_CBPF 51
-#define SO_ATTACH_REUSEPORT_EBPF 52
-#define SO_CNX_ADVICE           53
-#define SCM_TIMESTAMPING_OPT_STATS 54
-#define SO_MEMINFO              55
-#define SO_INCOMING_NAPI_ID     56
-#define SO_COOKIE               57
-#define SCM_TIMESTAMPING_PKTINFO 58
-#define SO_PEERGROUPS           59
-#define SO_ZEROCOPY             60
-#define SO_TXTIME               61
-#define SCM_TXTIME              SO_TXTIME
-#define SO_BINDTOIFINDEX        62
-#define SO_DETACH_REUSEPORT_BPF 68
-#define SO_PREFER_BUSY_POLL     69
-#define SO_BUSY_POLL_BUDGET     70
-
-#ifndef SOL_SOCKET
-#define SOL_SOCKET      1
+# ifdef __REDIRECT
+extern ssize_t __REDIRECT (sendmsg, (int __fd, const struct msghdr *__message,
+				     int __flags),
+			   __sendmsg64);
+# else
+extern ssize_t __sendmsg64 (int __fd, const struct msghdr *__message,
+			    int __flags);
+#  define sendmsg __sendmsg64
+# endif
 #endif
 
-#define SOL_IP          0
-#define SOL_IPV6        41
-#define SOL_ICMPV6      58
+#ifdef __USE_GNU
+/* Send a VLEN messages as described by VMESSAGES to socket FD.
+   Returns the number of datagrams successfully written or -1 for errors.
 
-#define SOL_RAW         255
-#define SOL_DECNET      261
-#define SOL_X25         262
-#define SOL_PACKET      263
-#define SOL_ATM         264
-#define SOL_AAL         265
-#define SOL_IRDA        266
-#define SOL_NETBEUI     267
-#define SOL_LLC         268
-#define SOL_DCCP        269
-#define SOL_NETLINK     270
-#define SOL_TIPC        271
-#define SOL_RXRPC       272
-#define SOL_PPPOL2TP    273
-#define SOL_BLUETOOTH   274
-#define SOL_PNPIPE      275
-#define SOL_RDS         276
-#define SOL_IUCV        277
-#define SOL_CAIF        278
-#define SOL_ALG         279
-#define SOL_NFC         280
-#define SOL_KCM         281
-#define SOL_TLS         282
-#define SOL_XDP         283
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+# ifndef __USE_TIME64_REDIRECTS
+extern int sendmmsg (int __fd, struct mmsghdr *__vmessages,
+		     unsigned int __vlen, int __flags);
+# else
+#  ifdef __REDIRECT
+extern int __REDIRECT (sendmmsg, (int __fd, struct mmsghdr *__vmessages,
+				  unsigned int __vlen, int __flags),
+		       __sendmmsg64);
+#  else
+extern int __sendmmsg64 (int __fd, struct mmsghdr *__vmessages,
+			 unsigned int __vlen, int __flags);
+#   define sendmmsg __sendmmsg64
+#  endif
+# endif	 /* __USE_TIME64_REDIRECTS */
+#endif /* __USE_GNU */
 
-#define SOMAXCONN       128
+/* Receive a message as described by MESSAGE from socket FD.
+   Returns the number of bytes read or -1 for errors.
 
-#define MSG_OOB       0x0001
-#define MSG_PEEK      0x0002
-#define MSG_DONTROUTE 0x0004
-#define MSG_CTRUNC    0x0008
-#define MSG_PROXY     0x0010
-#define MSG_TRUNC     0x0020
-#define MSG_DONTWAIT  0x0040
-#define MSG_EOR       0x0080
-#define MSG_WAITALL   0x0100
-#define MSG_FIN       0x0200
-#define MSG_SYN       0x0400
-#define MSG_CONFIRM   0x0800
-#define MSG_RST       0x1000
-#define MSG_ERRQUEUE  0x2000
-#define MSG_NOSIGNAL  0x4000
-#define MSG_MORE      0x8000
-#define MSG_WAITFORONE 0x10000
-#define MSG_BATCH     0x40000
-#define MSG_ZEROCOPY  0x4000000
-#define MSG_FASTOPEN  0x20000000
-#define MSG_CMSG_CLOEXEC 0x40000000
-
-#define __CMSG_LEN(cmsg) (((cmsg)->cmsg_len + sizeof(long) - 1) & ~(long)(sizeof(long) - 1))
-#define __CMSG_NEXT(cmsg) ((unsigned char *)(cmsg) + __CMSG_LEN(cmsg))
-#define __MHDR_END(mhdr) ((unsigned char *)(mhdr)->msg_control + (mhdr)->msg_controllen)
-
-#define CMSG_DATA(cmsg) ((unsigned char *) (((struct cmsghdr *)(cmsg)) + 1))
-#define CMSG_NXTHDR(mhdr, cmsg) ((cmsg)->cmsg_len < sizeof (struct cmsghdr) || \
-	__CMSG_LEN(cmsg) + sizeof(struct cmsghdr) >= __MHDR_END(mhdr) - (unsigned char *)(cmsg) \
-	? 0 : (struct cmsghdr *)__CMSG_NEXT(cmsg))
-#define CMSG_FIRSTHDR(mhdr) ((size_t) (mhdr)->msg_controllen >= sizeof (struct cmsghdr) ? (struct cmsghdr *) (mhdr)->msg_control : (struct cmsghdr *) 0)
-
-#define CMSG_ALIGN(len) (((len) + sizeof (size_t) - 1) & (size_t) ~(sizeof (size_t) - 1))
-#define CMSG_SPACE(len) (CMSG_ALIGN (len) + CMSG_ALIGN (sizeof (struct cmsghdr)))
-#define CMSG_LEN(len)   (CMSG_ALIGN (sizeof (struct cmsghdr)) + (len))
-
-#define SCM_RIGHTS      0x01
-#define SCM_CREDENTIALS 0x02
-
-struct sockaddr {
-	sa_family_t sa_family;
-	char sa_data[14];
-};
-
-struct sockaddr_storage {
-	sa_family_t ss_family;
-	char __ss_padding[128-sizeof(long)-sizeof(sa_family_t)];
-	unsigned long __ss_align;
-};
-
-int socket (int, int, int);
-int socketpair (int, int, int, int [2]);
-
-int shutdown (int, int);
-
-int bind (int, const struct sockaddr *, socklen_t);
-int connect (int, const struct sockaddr *, socklen_t);
-int listen (int, int);
-int accept (int, struct sockaddr *__restrict, socklen_t *__restrict);
-int accept4(int, struct sockaddr *__restrict, socklen_t *__restrict, int);
-
-int getsockname (int, struct sockaddr *__restrict, socklen_t *__restrict);
-int getpeername (int, struct sockaddr *__restrict, socklen_t *__restrict);
-
-ssize_t send (int, const void *, size_t, int);
-ssize_t recv (int, void *, size_t, int);
-ssize_t sendto (int, const void *, size_t, int, const struct sockaddr *, socklen_t);
-ssize_t recvfrom (int, void *__restrict, size_t, int, struct sockaddr *__restrict, socklen_t *__restrict);
-ssize_t sendmsg (int, const struct msghdr *, int);
-ssize_t recvmsg (int, struct msghdr *, int);
-
-int getsockopt (int, int, int, void *__restrict, socklen_t *__restrict);
-int setsockopt (int, int, int, const void *, socklen_t);
-
-int sockatmark (int);
-
-#if _REDIR_TIME64
-#ifdef _GNU_SOURCE
-__REDIR(recvmmsg, __recvmmsg_time64);
-#endif
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+#ifndef __USE_TIME64_REDIRECTS
+extern ssize_t recvmsg (int __fd, struct msghdr *__message, int __flags);
+#else
+# ifdef __REDIRECT
+extern ssize_t __REDIRECT (recvmsg,
+			   (int __fd, struct msghdr *__message, int __flags),
+			   __recvmsg64);
+# else
+extern ssize_t __recvmsg64 (int __fd, struct msghdr *__message, int __flags);
+#  define recvmsg __recvmsg64
+# endif
 #endif
 
-#ifdef __cplusplus
-}
+#ifdef __USE_GNU
+/* Receive up to VLEN messages as described by VMESSAGES from socket FD.
+   Returns the number of messages received or -1 for errors.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+# ifndef __USE_TIME64_REDIRECTS
+extern int recvmmsg (int __fd, struct mmsghdr *__vmessages,
+		     unsigned int __vlen, int __flags,
+		     struct timespec *__tmo);
+# else
+#  ifdef __REDIRECT
+extern int __REDIRECT (recvmmsg, (int __fd, struct mmsghdr *__vmessages,
+                                  unsigned int __vlen, int __flags,
+                                  struct timespec *__tmo),
+                       __recvmmsg64);
+#  else
+#   define recvmmsg __recvmmsg64
+#  endif
+# endif
 #endif
+
+
+/* Put the current value for socket FD's option OPTNAME at protocol level LEVEL
+   into OPTVAL (which is *OPTLEN bytes long), and set *OPTLEN to the value's
+   actual length.  Returns 0 on success, -1 for errors.  */
+#ifndef __USE_TIME64_REDIRECTS
+extern int getsockopt (int __fd, int __level, int __optname,
+		       void *__restrict __optval,
+		       socklen_t *__restrict __optlen) __THROW;
+#else
+# ifdef __REDIRECT
+extern int __REDIRECT_NTH (getsockopt,
+			   (int __fd, int __level, int __optname,
+			    void *__restrict __optval,
+			    socklen_t *__restrict __optlen),
+			   __getsockopt64);
+# else
+extern int __getsockopt64 (int __fd, int __level, int __optname,
+			   void *__restrict __optval,
+			   socklen_t *__restrict __optlen) __THROW;
+#  define getsockopt __getsockopt64
+# endif
 #endif
+
+/* Set socket FD's option OPTNAME at protocol level LEVEL
+   to *OPTVAL (which is OPTLEN bytes long).
+   Returns 0 on success, -1 for errors.  */
+#ifndef __USE_TIME64_REDIRECTS
+extern int setsockopt (int __fd, int __level, int __optname,
+		       const void *__optval, socklen_t __optlen) __THROW;
+#else
+# ifdef __REDIRECT
+extern int __REDIRECT_NTH (setsockopt,
+			   (int __fd, int __level, int __optname,
+			    const void *__optval, socklen_t __optlen),
+			   __setsockopt64);
+# else
+extern int __setsockopt64 (int __fd, int __level, int __optname,
+			   const void *__optval, socklen_t __optlen) __THROW;
+#  define setsockopt __setsockopt64
+# endif
+#endif
+
+
+/* Prepare to accept connections on socket FD.
+   N connection requests will be queued before further requests are refused.
+   Returns 0 on success, -1 for errors.  */
+extern int listen (int __fd, int __n) __THROW;
+
+/* Await a connection on socket FD.
+   When a connection arrives, open a new socket to communicate with it,
+   set *ADDR (which is *ADDR_LEN bytes long) to the address of the connecting
+   peer and *ADDR_LEN to the address's actual length, and return the
+   new socket's descriptor, or -1 for errors.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern int accept (int __fd, __SOCKADDR_ARG __addr,
+		   socklen_t *__restrict __addr_len);
+
+#ifdef __USE_GNU
+/* Similar to 'accept' but takes an additional parameter to specify flags.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern int accept4 (int __fd, __SOCKADDR_ARG __addr,
+		    socklen_t *__restrict __addr_len, int __flags);
+#endif
+
+/* Shut down all or part of the connection open on socket FD.
+   HOW determines what to shut down:
+     SHUT_RD   = No more receptions;
+     SHUT_WR   = No more transmissions;
+     SHUT_RDWR = No more receptions or transmissions.
+   Returns 0 on success, -1 for errors.  */
+extern int shutdown (int __fd, int __how) __THROW;
+
+
+#ifdef __USE_XOPEN2K
+/* Determine whether socket is at a out-of-band mark.  */
+extern int sockatmark (int __fd) __THROW;
+#endif
+
+
+#ifdef __USE_MISC
+/* FDTYPE is S_IFSOCK or another S_IF* macro defined in <sys/stat.h>;
+   returns 1 if FD is open on an object of the indicated type, 0 if not,
+   or -1 for errors (setting errno).  */
+extern int isfdtype (int __fd, int __fdtype) __THROW;
+#endif
+
+
+/* Define some macros helping to catch buffer overflows.  */
+#if __USE_FORTIFY_LEVEL > 0 && defined __fortify_function
+# include <bits/socket2.h>
+#endif
+
+__END_DECLS
+
+#endif /* sys/socket.h */

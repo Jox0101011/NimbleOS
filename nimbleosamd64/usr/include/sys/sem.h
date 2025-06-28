@@ -1,72 +1,88 @@
+/* Copyright (C) 1995-2025 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, see
+   <https://www.gnu.org/licenses/>.  */
+
 #ifndef _SYS_SEM_H
-#define _SYS_SEM_H
-#ifdef __cplusplus
-extern "C" {
-#endif
+#define _SYS_SEM_H	1
 
 #include <features.h>
 
-#define __NEED_size_t
-#define __NEED_pid_t
-#define __NEED_time_t
-#ifdef _GNU_SOURCE
-#define __NEED_struct_timespec
-#endif
-#include <bits/alltypes.h>
+#define __need_size_t
+#include <stddef.h>
 
+/* Get common definition of System V style IPC.  */
 #include <sys/ipc.h>
 
-#define SEM_UNDO	0x1000
-#define GETPID		11
-#define GETVAL		12
-#define GETALL		13
-#define GETNCNT		14
-#define GETZCNT		15
-#define SETVAL		16
-#define SETALL		17
-
+/* Get system dependent definition of `struct semid_ds' and more.  */
 #include <bits/sem.h>
 
-#define _SEM_SEMUN_UNDEFINED 1
+#ifdef __USE_GNU
+# include <bits/types/struct_timespec.h>
+#endif
 
-#define SEM_STAT (18 | (IPC_STAT & 0x100))
-#define SEM_INFO 19
-#define SEM_STAT_ANY (20 | (IPC_STAT & 0x100))
+/* The following System V style IPC functions implement a semaphore
+   handling.  The definition is found in XPG2.  */
 
-struct  seminfo {
-	int semmap;
-	int semmni;
-	int semmns;
-	int semmnu;
-	int semmsl;
-	int semopm;
-	int semume;
-	int semusz;
-	int semvmx;
-	int semaem;
+/* Structure used for argument to `semop' to describe operations.  */
+struct sembuf
+{
+  unsigned short int sem_num;	/* semaphore number */
+  short int sem_op;		/* semaphore operation */
+  short int sem_flg;		/* operation flag */
 };
 
-struct sembuf {
-	unsigned short sem_num;
-	short sem_op;
-	short sem_flg;
-};
 
-int semctl(int, int, int, ...);
-int semget(key_t, int, int);
-int semop(int, struct sembuf *, size_t);
+__BEGIN_DECLS
 
-#ifdef _GNU_SOURCE
-int semtimedop(int, struct sembuf *, size_t, const struct timespec *);
-#endif
-
-#if _REDIR_TIME64
-#ifdef _GNU_SOURCE
-__REDIR(semtimedop, __semtimedop_time64);
-#endif
+/* Semaphore control operation.  */
+#ifndef __USE_TIME64_REDIRECTS
+extern int semctl (int __semid, int __semnum, int __cmd, ...) __THROW;
+#else
+# ifdef __REDIRECT_NTH
+extern int __REDIRECT_NTH (semctl,
+                           (int __semid, int __semnum, int __cmd, ...),
+                           __semctl64);
+# else
+#  define semctl __semctl64
+# endif
 #endif
 
-#ifdef __cplusplus
-}
+/* Get semaphore.  */
+extern int semget (key_t __key, int __nsems, int __semflg) __THROW;
+
+/* Operate on semaphore.  */
+extern int semop (int __semid, struct sembuf *__sops, size_t __nsops) __THROW;
+
+#ifdef __USE_GNU
+/* Operate on semaphore with timeout.  */
+# ifndef __USE_TIME64_REDIRECTS
+extern int semtimedop (int __semid, struct sembuf *__sops, size_t __nsops,
+		       const struct timespec *__timeout) __THROW;
+# else
+#  ifdef __REDIRECT_NTH
+extern int __REDIRECT_NTH (semtimedop, (int __semid, struct sembuf *__sops,
+                                        size_t __nsops,
+                                        const struct timespec *__timeout),
+                           __semtimedop64);
+#  else
+#   define semtimedop __semtimedop64
+#  endif
+# endif
 #endif
-#endif
+
+__END_DECLS
+
+#endif /* sys/sem.h */
