@@ -16,6 +16,9 @@ See the [`LICENSE`](LICENSE) file for more information.
   <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=22&pause=1000&color=BC13FE&center=true&width=435&lines=echo+%24whoami;sudo+hacker;automating+everything;Linux+enthusiast;Offensive+Security+lover" alt="Typing SVG" />
 </p>
 
-## 
-
 ## About
+
+<p>NimbleOS is an operating system designed for own development and customization. </p>
+<p>NimbleOS is an operating system that you can adapt, modify, and develop any way you choose. 
+perfect for building your system, remember arch? maybe. </p>
+<p>NimbleOS is YOUR customizable linux playground </p>
