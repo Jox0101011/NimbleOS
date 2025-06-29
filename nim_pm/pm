@@ -38,17 +38,17 @@ function packagemanagerhelp {
 
 # CODIGO PARA GERENCIADOR
 
-if [ "$EUID" -ne 0 ]; then
+if [[ "$EUID" -ne 0 ]]; then
   echo "error: Você não pode executar essa operação a não ser que seja root."
   exit 1
 fi
 
-if [ "$1" == "update" ] || [ "$1" == "-Sy" ]; then
+if [[ "$1" == "update" || "$1" == "-Sy" ]]; then
   echo "Atualizando lista de pacotes... "
   downloadlist
-elif [ "$1" == "setup" ] || [ "$1" == "-C" ]; then
+elif [[ "$1" == "setup" || "$1" == "-C" ]]; then
   setuppackagemanager
-elif [ "$1" == "help" ] || [ "$1" == "-h" ]; then
+elif [[ "$1" == "help" || "$1" == "-h" ]]; then
   packagemanagerhelp
 else
   echo "Argumento invalido, use o argumento help para ver as opcoes disponiveis."
