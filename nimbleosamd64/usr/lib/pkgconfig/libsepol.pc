@@ -1,0 +1,11 @@
+prefix=/usr
+exec_prefix=${prefix}
+libdir=/usr/lib
+includedir=/usr/include
+
+Name: libsepol
+Description: SELinux policy library
+Version: 3.9-rc2
+URL: https://github.com/selinuxproject/selinux/wiki/Releases
+Libs: -L${libdir} -lsepol
+Cflags: -I${includedir}
