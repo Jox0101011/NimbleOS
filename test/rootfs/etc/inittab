@@ -1,0 +1,6 @@
+id:3:initdefault:
+si::sysvinit:/etc/init.d/rcS
+bl:12345:respawn:/sbin/bootlogd -r
+tty1::respawn::/sbin/getty 115200 tty1
+tty2::respawn::/sbin/getty 115200 tty2
+ca::ctrlaltdel:/sbin/reboot
