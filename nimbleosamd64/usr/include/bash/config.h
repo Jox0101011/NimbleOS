@@ -982,7 +982,7 @@
 #define HAVE_LANGINFO_H 1
 
 /* Define if you have the <libaudit.h> header file. */
-/* #undef HAVE_LIBAUDIT_H */
+#define HAVE_LIBAUDIT_H 1
 
 /* Define if you have the <libintl.h> header file. */
 /* #undef HAVE_LIBINTL_H */

@@ -37,10 +37,10 @@ datarootdir = ${prefix}/share
 loadablesdir = ${libdir}/bash
 headersdir = $(includedir)/$(PACKAGE_NAME)
 
-topdir = ../../../bash
-BUILD_DIR = /home/ky/LFN/bash-build
-srcdir = ../../../bash/examples/loadables
-VPATH = ../../../bash/examples/loadables
+topdir = ../..
+BUILD_DIR = /home/ky/bash
+srcdir = .
+
 
 # Support an alternate destination root directory for package building
 DESTDIR =
