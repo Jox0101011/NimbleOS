@@ -55,3 +55,6 @@ vim
 exit
 vim
 exit
+vim
+clear
+exit
