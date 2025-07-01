@@ -1,0 +1,52 @@
+#!/bin/sh
+
+## CAMINHO ATÉ INITTAB E DIRETORIOS DO SERVICOS
+
+INITTAB=/etc/kyinittab
+SERVICESDIR=/etc/init.d
+
+clear
+printkyinit() {
+	echo "   __ __     ____     _ __ "
+	echo "  / //_/_ __/  _/__  (_) /_ "
+	echo " / ,< / // // // _ \/ / __/ "
+	echo "/_/|_|\_, /___/_//_/_/\__/  "
+	echo "     /___/                  "
+	echo " "
+}
+
+printkyinit
+
+## VER SE INITTAB EXISTE E EXECUTAR
+
+if [ -f "$INITTAB" ] && [ -x "$INITTAB" ]; then
+	echo "[ ... ] Reading Init tab... ($INITTAB)"
+	"$INITTAB" start
+	STATUS=$?
+	if [ $STATUS -eq 0 ]; then
+		echo "[ ok ] Init tab readed."
+	else
+		echo "[ failed ] Error in running Init tab (status $STATUS)"
+	fi
+else
+	echo "[ failed ] Init tab not found or not executable. ($INITTAB)"
+fi
+
+## EXECUÇAO DOS SERVIÇOS
+
+if [ -d "$SERVICES_DIR" ]; then
+	for script in "$SERVICESDIR"/*; do
+		if [ -f "$script" ] && [ -x "$script" ]; then
+			echo "Starting $script"
+			"$script" start
+			STATUS=$?
+			if [ $STATUS -eq 0 ]; then
+				echo "[ ok ] $script started."
+			else
+				echo "[ failed ] $script not started (status $STATUS)"
+			fi
+		fi
+	done
+else
+	echo "Directory not found ($SERVICESDIR)"
+fi
