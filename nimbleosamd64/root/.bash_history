@@ -92,3 +92,22 @@ exit
 dash
 >>>>>>> refs/remotes/origin/main
 exit
+fastfetch 
+neofetch
+ls
+exit
+sh
+dash
+ecit
+exit
+exit
+gcc
+clear
+type
+y
+yes
+exit
+ls
+../configure
+../exit
+exit
