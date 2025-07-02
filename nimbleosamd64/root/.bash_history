@@ -1,64 +1,3 @@
-<<<<<<< HEAD
-ls
-clear
-sudo
-doas
-clear
-ls
-clear
-{}
-[
-{
-cls
-l
-ll
-ls
-la
-la
-ll
-lld
-dpkg
-apt
-exit
-vi
-vim
-sudo
-exit
-neofetch
-fastfetch
-ls
-cd bin
-ls
-cd 
-cd ../
-ls
-ls usr
-ls usr/lib64/
-ls usr/lib/
-ls
-exit
-fastfetch
-ls bin
-ls bin | grep fastfetch
-cd -
-exit
-fastfetch 
-exit
-fastfetch 
-exit
-fastfetch 
-exit
-fastfetch 
-exit
-vim
-exit
-vim
-exit
-vim
-exit
-vim
-clear
-=======
 agetty
 exit
 agetty
@@ -90,7 +29,27 @@ l
 ls
 exit
 dash
->>>>>>> refs/remotes/origin/main
+exit
+grep
+exit
+grep
+ls lib | grep libc.so.6
+ls lib | grep libc.so
+clear
+ls lib | grep libc.so
+se
+sed
+exit
+sed
+exit
+sed
+exit
+ld
+ldd
+ldd /bin/sed
+exit
+wget
+curl
 exit
 fastfetch 
 neofetch
